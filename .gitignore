@@ -1,0 +1,9 @@
+*.log
+/node_modules
+/lib
+.gobble
+.gobble-build
+.gobble-watch
+Thumbs.db
+/.idea/
+/r7insight_node.iml
