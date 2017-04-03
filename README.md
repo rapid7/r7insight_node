@@ -30,11 +30,6 @@ they wish to update.
 - [Buffer & Connection Issues](#buffer--connection-issues)
 - [Using as a Winston ‘Transport’](#using-as-a-winston-transport)
 - [Using with Bunyan](#using-with-bunyan)
-- [Setting Up With Logentries Itself](#setting-up-with-logentries-itself)
-- [2015-05-26: r7insight_node & Logentries-Client](#2015-05-26-r7insight_node--logentries-client)
-- [Changelog (Post-Merge)](#changelog-post-merge)
-- [Changelog (Old Logentries-Client)](#changelog-old-logentries-client)
-- [Changelog (Old r7insight_node)](#changelog-old-r7insight_node)
 
 <!-- /MarkdownTOC -->
 
@@ -333,7 +328,7 @@ var bunyan = require('bunyan');
 
 var Logger = require('r7insight_node');
 
-var loggerDefinition = Logger.bunyanStream({ token: myToken, region: 'myRegion' });
+var loggerDefinition = Logger.bunyanStream({ token: myToken, region: myRegion });
 
 // One stream
 var logger1 = bunyan.createLogger(loggerDefinition);
