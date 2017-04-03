@@ -140,9 +140,7 @@ class Logger extends Writable {
     // string or numeric options
     this.bufferSize = opts.bufferSize || defaults.bufferSize;
     this.port = opts.port || (this.secure ? defaults.portSecure : defaults.port);
-    this.region = opts.region;
-    this.baseHost = opts.baseHost || defaults.baseHost;
-    this.host = opts.host || `data.${opts.region}.${this.baseHost}`;
+    this.host = opts.host || `data.${opts.region}.${opts.baseHost || defaults.baseHost}`;
     this.minLevel = opts.minLevel;
     this.replacer = opts.replacer;
     this.inactivityTimeout = opts.inactivityTimeout || defaults.inactivityTimeout;
@@ -549,14 +547,6 @@ class Logger extends Writable {
     this.serialize = build(this);
   }
 
-  set region(val) {
-    this._region = val;
-  }
-
-  get region() {
-    return this._region;
-  }
-
   get host() {
     return this._host;
   }
@@ -566,23 +556,6 @@ class Logger extends Writable {
     const url = urlUtil.parse(`http://${host}`);
     this._host = url.hostname;
     if (url.port) this.port = url.port;
-  }
-
-  get baseHost() {
-    return this._baseHost;
-  }
-
-  set baseHost(val) {
-    if (!_.isString(val) || !val.length) {
-      this._host = defaults.baseHost;
-      return;
-    }
-
-    const baseHost = val.replace(/^https?:\/\//, '');
-    const baseUrl = urlUtil.parse(`http://${baseHost}`);
-    this._baseHost = baseUrl.hostname || defaults.baseHost;
-
-    if (baseUrl.port) this.port = baseUrl.port;
   }
 
   get json() {
