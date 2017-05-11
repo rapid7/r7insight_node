@@ -140,7 +140,7 @@ class Logger extends Writable {
     // string or numeric options
     this.bufferSize = opts.bufferSize || defaults.bufferSize;
     this.port = opts.port || (this.secure ? defaults.portSecure : defaults.port);
-    this.host = opts.host || `data.${opts.region}.${opts.baseHost || defaults.baseHost}`;
+    this.host = opts.host || `${opts.region}.${opts.baseHost || defaults.baseHost}`;
     this.minLevel = opts.minLevel;
     this.replacer = opts.replacer;
     this.inactivityTimeout = opts.inactivityTimeout || defaults.inactivityTimeout;

@@ -2,7 +2,7 @@ export const bufferSize = 16192;
 
 export const secure = true;
 
-export const baseHost = 'logentries.com';
+export const baseHost = 'data.logs.insight.rapid7.com';
 
 export const port = 80;
 
