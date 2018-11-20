@@ -1,17 +1,15 @@
+[![Build Status](https://travis-ci.org/rapid7/r7insight_node.svg?branch=master)](https://travis-ci.org/rapid7/r7insight_node)
+
 # r7insight_node: InsightOps Client
 
-Allows you to send logs to your [InsightOps](https://www.rapid7.com/solutions/it-operations/) account
-from Node or io.js.
+Allows you to send logs to your [InsightOps](https://www.rapid7.com/solutions/it-operations/)
+(or Logentries) account from Node.js.
 
 > It might work with Browserify, too, but you would need to use shims for net
 > and tls. Such shims do exist, based on forge, but I haven’t tested it. There’s
 > a seperate client intended for use in the browser though, called
 > [le_js](https://www.npmjs.com/package/le_js), which uses http and is optimized
 > for browser-specific logging needs.
-
-Tested in Node v0.10 + and io.js. It probably works in Node 0.8 too, but one of
-the test libraries ([mitm](https://www.npmjs.com/package/mitm)) doesn’t, so it
-remains unconfirmed.
 
 What is now "r7insight_node" was previously "logentries-client"; users of r7insight_node
 versions before 1.0.2 should read the sections below that detail differences if
