@@ -758,14 +758,16 @@ tape("Winston@2.1.1 supports json logging.", function (t) {
 // BUNYAN STREAM
 
 tape('Bunyan integration is provided.', function (t) {
-  t.plan(8);
+  t.plan(9);
 
-  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3 });
+  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'eu' });
 
   t.true(streamDef, 'bunyan stream definition created');
 
   t.equal(streamDef.level, defaults.bunyanLevels[3],
     'minLevel translated correctly');
+  
+  t.equal(streamDef.stream._logger._host, 'eu.data.logs.insight.rapid7.com')
 
   const logger = bunyan.createLogger({
     name: 'whatevs',
@@ -805,20 +807,4 @@ tape('Bunyan integration respects region option.', function (t) {
   });
 
   t.equal(logger.streams[0].stream._logger._host, 'craggy_island.data.logs.insight.rapid7.com')
-});
-
-
-tape('Bunyan integration defaults to EU region.', function (t) {
-  t.plan(2);
-
-  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3 });
-
-  t.equal(streamDef.stream._logger._host, 'eu.data.logs.insight.rapid7.com')
-
-  const logger = bunyan.createLogger({
-    name: 'whatevs',
-    streams: [streamDef]
-  });
-
-  t.equal(logger.streams[0].stream._logger._host, 'eu.data.logs.insight.rapid7.com')
 });
