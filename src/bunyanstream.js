@@ -16,6 +16,7 @@ class BunyanStream extends Writable {
 
     loggerOpts.timestamp = false;
     loggerOpts.levels = opts.levels || defaults.bunyanLevels;
+    loggerOpts.region = loggerOpts.region || 'eu';
 
     this.logger = new Logger(loggerOpts);
 

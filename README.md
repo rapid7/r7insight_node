@@ -1,7 +1,9 @@
+[![Build Status](https://travis-ci.org/rapid7/r7insight_node.svg?branch=master)](https://travis-ci.org/rapid7/r7insight_node)
+
 # r7insight_node: InsightOps Client
 
-Allows you to send logs to your [InsightOps](https://www.rapid7.com/solutions/it-operations/) account
-from Node or io.js.
+Allows you to send logs to your [InsightOps](https://www.rapid7.com/solutions/it-operations/)
+(or Logentries) account from Node or io.js.
 
 > It might work with Browserify, too, but you would need to use shims for net
 > and tls. Such shims do exist, based on forge, but I haven’t tested it. There’s
