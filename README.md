@@ -344,8 +344,3 @@ will be ignored; by default Bunyan’s level names will be used.
 The object returned by `bunyanStream` is the Bunyan logging ‘channel’ definition
 in total. If you want to futz with this you can -- you can change its `name` or
 get the `stream` object itself from here.
-
-Contact Support
-===============
-
-Please email our support team at support@rapid7.com if you need any help.
