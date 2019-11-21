@@ -627,11 +627,11 @@ tape('Winston integration is provided.', function (t) {
   t.plan(4);
   t.timeoutAfter(2000);
 
-  t.true(winston.transports.Logentries,
+  t.true(winston.transports.Insight,
       'provisioned constructor automatically');
 
   t.doesNotThrow(function () {
-    winston.add(winston.transports.Logentries, { token: x, region: 'eu' });
+    winston.add(winston.transports.Insight, { token: x, region: 'eu' });
   }, 'transport can be added');
 
   winston.remove(winston.transports.Console);
@@ -650,7 +650,7 @@ tape("Winston supports json logging.", function (t) {
 
   const logger = new (winston.Logger)({
     transports: [
-      new (winston.transports.Logentries)({ token: x, json: true, region: 'eu' })
+      new (winston.transports.Insight)({ token: x, json: true, region: 'eu' })
     ]
   });
 
@@ -671,11 +671,11 @@ tape('Winston@1.1.2 integration is provided.', function (t) {
   t.plan(4);
   t.timeoutAfter(2000);
 
-  t.true(winston1.transports.Logentries,
+  t.true(winston1.transports.Insight,
       'provisioned constructor automatically');
 
   t.doesNotThrow(function () {
-    winston1.add(winston1.transports.Logentries, { token: x, region: 'eu' });
+    winston1.add(winston1.transports.Insight, { token: x, region: 'eu' });
   }, 'transport can be added');
 
   winston1.remove(winston1.transports.Console);
@@ -694,7 +694,7 @@ tape("Winston@1.1.2 supports json logging.", function (t) {
 
   const logger = new (winston1.Logger)({
     transports: [
-      new (winston1.transports.Logentries)({ token: x, json: true, region: 'eu' })
+      new (winston1.transports.Insight)({ token: x, json: true, region: 'eu' })
     ]
   });
 
@@ -715,11 +715,11 @@ tape('Winston@2.1.1 integration is provided.', function (t) {
   t.plan(4);
   t.timeoutAfter(2000);
 
-  t.true(winston2.transports.Logentries,
+  t.true(winston2.transports.Insight,
       'provisioned constructor automatically');
 
   t.doesNotThrow(function () {
-    winston2.add(winston2.transports.Logentries, { token: x, region: 'eu' });
+    winston2.add(winston2.transports.Insight, { token: x, region: 'eu' });
   }, 'transport can be added');
 
   winston2.remove(winston2.transports.Console);
@@ -738,7 +738,7 @@ tape("Winston@2.1.1 supports json logging.", function (t) {
 
   const logger = new (winston2.Logger)({
     transports: [
-      new (winston2.transports.Logentries)({ token: x, json: true, region: 'eu' })
+      new (winston2.transports.Insight)({ token: x, json: true, region: 'eu' })
     ]
   });
 

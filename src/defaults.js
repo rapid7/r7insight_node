@@ -43,7 +43,7 @@ export const debugLogger = (() => {
   };
 
   timestamp.toString = () =>
-      `[DEBUG ${(new Date()).toLocaleString()}] Logentries r7insight_node: `;
+      `[DEBUG ${(new Date()).toLocaleString()}] Insight r7insight_node: `;
 
   return { log: console.log.bind(console, '%s', timestamp) };
 })();

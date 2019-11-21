@@ -70,6 +70,6 @@ export default {
 
   deprecatedWinstonMethod: () =>
   'The `winston` method is deprecated. Winston was automatically ' +
-  'provisioned with a Logentries transport as soon as you `require()`d ' +
+  'provisioned with a Insight Platform transport as soon as you `require()`d ' +
   'this module.'
 };

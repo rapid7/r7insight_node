@@ -12,7 +12,7 @@ import text from './text';
 import build from './serialize';
 import {
     BadOptionsError,
-    LogentriesError
+    InsightError
 } from './error';
 import RingBuffer from './ringbuffer';
 import BunyanStream from './bunyanstream';
@@ -76,7 +76,7 @@ const requirePeer = codependency.register(module);
 
 
 /**
- * Logger class that handles parsing of logs and sending logs to Logentries.
+ * Logger class that handles parsing of logs and sending logs to the Insight Platform.
  */
 class Logger extends Writable {
   constructor(opts) {
@@ -171,7 +171,7 @@ class Logger extends Writable {
         connection = tls.connect.apply(tls, args, () => {
           if (!connection.authorized) {
             const errMsg = connection.authorizationError;
-            this.emit(new LogentriesError(text.authError(errMsg)));
+            this.emit(new InsightError(text.authError(errMsg)));
           } else if (tls && tls.CleartextStream && connection instanceof tls.CleartextStream) {
             this.emit('connect');
           }
@@ -213,7 +213,7 @@ class Logger extends Writable {
   /**
    * Override Writable _write method.
    * Get the connection promise .then write the next log on the ringBuffer
-   * to Logentries connection when its available
+   * to Insight connection when its available
    */
   _write(ch, enc, cb) {
     this.drained = false;
@@ -269,7 +269,7 @@ class Logger extends Writable {
 
       // If lvl is present, it must be recognized
       if (!modifiedLevel && modifiedLevel !== 0) {
-        this.emit(errorEvent, new LogentriesError(text.unknownLevel(modifiedLevel)));
+        this.emit(errorEvent, new InsightError(text.unknownLevel(modifiedLevel)));
         return;
       }
 
@@ -284,7 +284,7 @@ class Logger extends Writable {
       if (modifiedLog.length) {
         for (const $modifiedLog of modifiedLog) this.log(modifiedLevel, $modifiedLog);
       } else {
-        this.emit(errorEvent, new LogentriesError(text.noLogMessage()));
+        this.emit(errorEvent, new InsightError(text.noLogMessage()));
       }
       return;
     }
@@ -308,7 +308,7 @@ class Logger extends Writable {
       modifiedLog = this._serialize(modifiedLog);
 
       if (!modifiedLog) {
-        this.emit(errorEvent, new LogentriesError(text.serializedEmpty()));
+        this.emit(errorEvent, new InsightError(text.serializedEmpty()));
         return;
       }
 
@@ -320,7 +320,7 @@ class Logger extends Writable {
       if (safeLevel) delete modifiedLog[safeLevel];
     } else {
       if (_.isEmpty(modifiedLog)) {
-        this.emit(errorEvent, new LogentriesError(text.noLogMessage()));
+        this.emit(errorEvent, new InsightError(text.noLogMessage()));
         return;
       }
 
@@ -689,15 +689,15 @@ class Logger extends Writable {
    * @param winston
    */
   static provisionWinston(winston) {
-    if (winston.transports.Logentries) return;
+    if (winston.transports.Insight) return;
 
     const Transport = winston.Transport;
 
-    class LogentriesTransport extends Transport {
+    class InsightTransport extends Transport {
       constructor(opts) {
         super(opts);
         this.json = opts.json;
-        this.name = 'logentries';
+        this.name = 'insight';
 
         const transportOpts = _.clone(opts || {});
 
@@ -706,8 +706,8 @@ class Logger extends Writable {
 
         transportOpts.levels = transportOpts.levels || winston.levels;
         if (semver.satisfies(winston.version, '>=2.0.0')) {
-          // Winston and Logengries levels are reversed
-          // ('error' level is 0 for Winston and 5 for Logentries)
+          // Winston and Insight levels are reversed
+          // ('error' level is 0 for Winston and 5 for Insight)
           // If the user provides custom levels we assue they are
           // using winston standard
           const levels = transportOpts.levels;
@@ -793,7 +793,7 @@ class Logger extends Writable {
     }
 
     /* eslint no-param-reassign: ["error", { "props": false }] */
-    winston.transports.Logentries = LogentriesTransport;
+    winston.transports.Insight = InsightTransport;
   }
 
   /**
@@ -805,7 +805,7 @@ class Logger extends Writable {
     const stream = new BunyanStream(opts);
     const [, level] = stream.logger.toLevel(stream.logger.minLevel);
     const type = 'raw';
-    const name = 'logentries';
+    const name = 'insight';
 
     // Defer to Bunyan’s handling of minLevel
     stream.logger.minLevel = 0;

@@ -1,4 +1,4 @@
-export class LogentriesError extends Error {
+export class InsightError extends Error {
   constructor(msg) {
     super(msg);
 
@@ -9,7 +9,7 @@ export class LogentriesError extends Error {
   }
 }
 
-export class BadOptionsError extends LogentriesError {
+export class BadOptionsError extends InsightError {
   constructor(opts, msg) {
     super(msg);
 
