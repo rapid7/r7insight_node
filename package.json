@@ -34,7 +34,8 @@
   "scripts": {
     "build": "gobble build lib -f",
     "lint": "eslint src",
-    "prepublish": "npm run build",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "npm run build && npm run lint && node test/test.js | tap-spec"
   },
   "engines": {
@@ -47,8 +48,8 @@
     "codependency": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.15",
-    "semver": "^6.3.0",
-    "reconnect-core": "^1.3.0"
+    "reconnect-core": "^1.3.0",
+    "semver": "^6.3.0"
   },
   "devDependencies": {
     "babel": "^6.23.0",
@@ -64,6 +65,7 @@
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-jsx-a11y": "^6.2.3",
     "eslint-plugin-react": "^7.16.0",
+    "eslint-plugin-react-hooks": "^1.7.0",
     "estraverse": "^4.3.0",
     "estraverse-fb": "^1.3.2",
     "gobble": "^0.12.0",
