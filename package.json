@@ -39,9 +39,7 @@
     "test": "npm run build && npm run lint && node test/test.js | tap-spec"
   },
   "engines": {
-    "iojs": ">=0.10",
-    "node": ">=0.8.0",
-    "npm": ">=1.4.6"
+    "node": "^8.10.0 || ^10.13.0 || >=11.10.1"
   },
   "dependencies": {
     "babel-runtime": "^6.26.0",
