@@ -8,7 +8,12 @@
     "logs",
     "logging",
     "winston",
-    "bunyan"
+    "bunyan",
+    "insightops",
+    "rapid7",
+    "rapid7.com",
+    "insightplatform",
+    "insight"
   ],
   "homepage": "https://github.com/rapid7/r7insight_node",
   "author": {
