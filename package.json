@@ -39,6 +39,7 @@
   "scripts": {
     "build": "gobble build lib -f",
     "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "prepare": "npm run build",
     "prepublishOnly": "npm run build",
     "test": "npm run build && npm run lint && node test/test.js | tap-spec"
