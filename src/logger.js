@@ -11,8 +11,8 @@ import * as levelUtil from './levels';
 import text from './text';
 import build from './serialize';
 import {
-    BadOptionsError,
-    InsightError
+  BadOptionsError,
+  InsightError
 } from './error';
 import RingBuffer from './ringbuffer';
 import BunyanStream from './bunyanstream';
@@ -39,8 +39,7 @@ const bufferDrainEvent = 'buffer drain';
  * @param log
  * @param token
  */
-const finalizeLogString = (log, token) =>
-    `${token} ${log.toString().replace(newline, '\u2028')}\n`;
+const finalizeLogString = (log, token) => `${token} ${log.toString().replace(newline, '\u2028')}\n`;
 
 /**
  * Get console method corresponds to lvl
@@ -48,10 +47,10 @@ const finalizeLogString = (log, token) =>
  * @param lvl
  * @returns {*}
  */
-const getConsoleMethod = lvl => {
+const getConsoleMethod = (lvl) => {
   if (lvl > 3) {
     return 'error';
-  } else if (lvl === 3) {
+  } if (lvl === 3) {
     return 'warn';
   }
   return 'log';
@@ -148,8 +147,7 @@ class Logger extends Writable {
     this.token = opts.token;
     this.reconnectInitialDelay = opts.reconnectInitialDelay || defaults.reconnectInitialDelay;
     this.reconnectMaxDelay = opts.reconnectMaxDelay || defaults.reconnectMaxDelay;
-    this.reconnectBackoffStrategy =
-        opts.reconnectBackoffStrategy || defaults.reconnectBackoffStrategy;
+    this.reconnectBackoffStrategy = opts.reconnectBackoffStrategy || defaults.reconnectBackoffStrategy;
 
     if (!this.debugEnabled) {
       // if there is no debug set, empty logger should be used
@@ -158,8 +156,7 @@ class Logger extends Writable {
         }
       };
     } else {
-      this.debugLogger =
-          (opts.debugLogger && opts.debugLogger.log) ? opts.debugLogger : defaults.debugLogger;
+      this.debugLogger = (opts.debugLogger && opts.debugLogger.log) ? opts.debugLogger : defaults.debugLogger;
     }
 
     const isSecure = this.secure;
@@ -198,7 +195,8 @@ class Logger extends Writable {
     this.on(timeoutEvent, () => {
       if (this.drained) {
         this.debugLogger.log(
-            `Socket was inactive for ${this.inactivityTimeout / 1000} seconds. Destroying.`);
+          `Socket was inactive for ${this.inactivityTimeout / 1000} seconds. Destroying.`
+        );
         this.closeConnection();
       } else {
         this.debugLogger.log('Inactivity timeout event emitted but buffer was not drained.');
@@ -217,7 +215,7 @@ class Logger extends Writable {
    */
   _write(ch, enc, cb) {
     this.drained = false;
-    this.connection.then(conn => {
+    this.connection.then((conn) => {
       const record = this.ringBuffer.read();
       if (record) {
         // we are checking the buffer state here just after conn.write()
@@ -238,7 +236,7 @@ class Logger extends Writable {
         this.debugLogger.log('This should not happen. Read from ringBuffer returned null.');
       }
       cb();
-    }).catch(err => {
+    }).catch((err) => {
       this.emit(errorEvent, err);
       this.debugLogger.log(`Error: ${err}`);
       cb();
@@ -691,7 +689,7 @@ class Logger extends Writable {
   static provisionWinston(winston) {
     if (winston.transports.Insight) return;
 
-    const Transport = winston.Transport;
+    const { Transport } = winston;
 
     class InsightTransport extends Transport {
       constructor(opts) {
@@ -701,8 +699,7 @@ class Logger extends Writable {
 
         const transportOpts = _.clone(opts || {});
 
-        transportOpts.minLevel =
-            transportOpts.minLevel || transportOpts.level || this.tempLevel || 0;
+        transportOpts.minLevel = transportOpts.minLevel || transportOpts.level || this.tempLevel || 0;
 
         transportOpts.levels = transportOpts.levels || winston.levels;
         if (semver.satisfies(winston.version, '>=2.0.0')) {
@@ -710,7 +707,7 @@ class Logger extends Writable {
           // ('error' level is 0 for Winston and 5 for Insight)
           // If the user provides custom levels we assue they are
           // using winston standard
-          const levels = transportOpts.levels;
+          const { levels } = transportOpts;
           const values = _.values(levels).reverse();
           transportOpts.levels = {};
           _.keys(levels).forEach((k, i) => {
@@ -720,7 +717,7 @@ class Logger extends Writable {
 
         this.tempLevel = null;
         this.logger = new Logger(transportOpts);
-        this.logger.on('error', err => this.emit(err));
+        this.logger.on('error', (err) => this.emit(err));
       }
 
       log(lvl, msg, meta, cb) {
@@ -770,8 +767,7 @@ class Logger extends Writable {
       }
 
       get level() {
-        const [, lvlName] =
-            this.logger.toLevel(this.logger.minLevel);
+        const [, lvlName] = this.logger.toLevel(this.logger.minLevel);
         return lvlName;
       }
 
@@ -810,7 +806,9 @@ class Logger extends Writable {
     // Defer to Bunyan’s handling of minLevel
     stream.logger.minLevel = 0;
 
-    return { level, name, stream, type };
+    return {
+      level, name, stream, type
+    };
   }
 }
 
@@ -827,15 +825,15 @@ if (winston1) Logger.provisionWinston(winston1);
 if (winston2) Logger.provisionWinston(winston2);
 
 export {
-    Logger as default,
-    errorEvent,
-    logEvent,
-    connectedEvent,
-    disconnectedEvent,
-    timeoutEvent,
-    drainWritableEvent,
-    finishWritableEvent,
-    pipeWritableEvent,
-    unpipeWritableEvent,
-    bufferDrainEvent
+  Logger as default,
+  errorEvent,
+  logEvent,
+  connectedEvent,
+  disconnectedEvent,
+  timeoutEvent,
+  drainWritableEvent,
+  finishWritableEvent,
+  pipeWritableEvent,
+  unpipeWritableEvent,
+  bufferDrainEvent
 };

@@ -7,7 +7,7 @@ const stackDelim = /\n\s*/g;
 // util
 const pass = (key, val) => val;
 
-const isNewIterable = val => {
+const isNewIterable = (val) => {
   const isMap = (Map && val instanceof Map);
   const isSet = (Set && val instanceof Set);
   const isWeakMap = (WeakMap && val instanceof WeakMap);
@@ -36,39 +36,38 @@ const errReplacer = (val, withStack) => {
   return err;
 };
 
-const flat = (serialize, arraysToo) =>
-    (obj) => {
-      const serializedObj = JSON.parse(serialize(obj));
-      if (!_.isObject(serializedObj)) return serializedObj;
+const flat = (serialize, arraysToo) => (obj) => {
+  const serializedObj = JSON.parse(serialize(obj));
+  if (!_.isObject(serializedObj)) return serializedObj;
 
-      const flatObj = _.reduce(serializedObj, _.bind(function _flat(target, val, key) {
-        const keyContext = this.slice();
-        keyContext.push(key);
+  const flatObj = _.reduce(serializedObj, _.bind(function _flat(target, val, key) {
+    const keyContext = this.slice();
+    keyContext.push(key);
 
-        const joinedKey = keyContext.join('.');
-        const newTarget = target;
-        if (!_.isObject(val)) {
-          newTarget[joinedKey] = val;
-        } else if (!arraysToo && _.isArray(val)) {
-          newTarget[joinedKey] = val.map(newVal => {
-            if (!_.isObject(newVal)) return newVal;
+    const joinedKey = keyContext.join('.');
+    const newTarget = target;
+    if (!_.isObject(val)) {
+      newTarget[joinedKey] = val;
+    } else if (!arraysToo && _.isArray(val)) {
+      newTarget[joinedKey] = val.map((newVal) => {
+        if (!_.isObject(newVal)) return newVal;
 
-            return _.reduce(newVal, _.bind(_flat, []), {});
-          });
-        } else {
-          _.reduce(val, _.bind(_flat, keyContext), newTarget);
-        }
+        return _.reduce(newVal, _.bind(_flat, []), {});
+      });
+    } else {
+      _.reduce(val, _.bind(_flat, keyContext), newTarget);
+    }
 
-        return newTarget;
-      }, []), {});
+    return newTarget;
+  }, []), {});
 
-      return jsonSS(flatObj);
-    };
+  return jsonSS(flatObj);
+};
 
 // build serializer
 const build = ({
-    flatten, flattenArrays, replacer = pass,
-    withStack
+  flatten, flattenArrays, replacer = pass,
+  withStack
 }) => {
   // We augment the default JSON.stringify serialization behavior with
   // handling for a number of values that otherwise return nonsense values or
@@ -80,7 +79,7 @@ const build = ({
   // just want to dump objects in the log hole.
 
   // If the user supplied a custom replacer, it is applied first.
-  const replace = _.flow(replacer, val => {
+  const replace = _.flow(replacer, (val) => {
     // Prototypeless object
     if (_.isObject(val) && !Object.getPrototypeOf(val)) {
       return val;

@@ -4,8 +4,7 @@ import text from './text';
 import { BadOptionsError } from './error';
 
 // level numbers
-export const isNumberValid = n =>
-Number.isInteger(parseFloat(n)) && _.inRange(n, 8);
+export const isNumberValid = (n) => Number.isInteger(parseFloat(n)) && _.inRange(n, 8);
 
 /**
  * Normalize the array
@@ -18,7 +17,7 @@ const normArr = (arr, opts) => {
     throw new BadOptionsError(opts, text.tooManyLevels(arr.length));
   }
 
-  return arr.map(val => {
+  return arr.map((val) => {
     if (val && _.isString(val)) return val;
     if (_.isNumber(val) && isFinite(val)) return val.toString();
     if (_.isNull(val) || _.isUndefined(val)) return undefined;
@@ -42,10 +41,9 @@ const normObj = (obj, opts) => {
     }
   }
 
-  const duplicates =
-      _(obj).countBy().pick(lvl => lvl > 1)
-          .keys()
-          .value();
+  const duplicates = _(obj).countBy().pick((lvl) => lvl > 1)
+    .keys()
+    .value();
 
   if (duplicates.length) {
     throw new BadOptionsError(opts, text.duplicateLevelNums(duplicates));
@@ -78,10 +76,9 @@ export const normalize = (opts) => {
 
   const levels = defaults.levels.map((lvl, i) => custom[i] || lvl);
 
-  const duplicates =
-      _(levels).countBy().pickBy(count => count > 1)
-          .keys()
-          .value();
+  const duplicates = _(levels).countBy().pickBy((count) => count > 1)
+    .keys()
+    .value();
 
   if (duplicates.length) {
     throw new BadOptionsError(opts, text.duplicateLevels(duplicates));

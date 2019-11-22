@@ -20,7 +20,7 @@ class BunyanStream extends Writable {
 
     this.logger = new Logger(loggerOpts);
 
-    this.logger.on('error', err => this.emit(err));
+    this.logger.on('error', (err) => this.emit(err));
   }
 
   _write(log, enc, cb) {

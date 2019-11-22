@@ -35,6 +35,6 @@ class RingBuffer extends EventEmitter {
 const bufferShiftEvent = 'buffer shift';
 
 export {
-    RingBuffer as default,
-    bufferShiftEvent
+  RingBuffer as default,
+  bufferShiftEvent
 };
