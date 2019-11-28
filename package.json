@@ -1,6 +1,6 @@
 {
   "name": "r7insight_node",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "description": "Logentries client for node; use with or without Winston or Bunyan.",
   "keywords": [
     "logentries",
