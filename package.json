@@ -20,49 +20,28 @@
     "name": "Rapid7",
     "email": "InsightOpsTeam@rapid7.com"
   },
-  "contributors": [
-    {
-      "name": "Darien Maillet Valentine",
-      "email": "darien.valentine@logentries.com"
-    },
-    {
-      "name": "Paul Dixon",
-      "email": "paul.dixon@logentries.com"
-    }
-  ],
   "license": "BSD-3-Clause",
   "repository": {
     "type": "git",
     "url": "https://github.com/rapid7/r7insight_node.git"
   },
-  "main": "lib/logger.js",
+  "main": "src/index.js",
   "scripts": {
-    "build": "gobble build lib -f",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "prepare": "npm run build",
-    "prepublishOnly": "npm run build",
-    "test": "npm run build && npm run lint && node test/test.js | tap-spec"
+    "test": "npm run lint && node test/test.js | tap-spec",
+    "test:debug": "node test/test.js | tap-spec"
   },
   "engines": {
     "node": "^8.10.0 || ^10.13.0 || >=11.10.1"
   },
   "dependencies": {
-    "babel-runtime": "^6.26.0",
     "codependency": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.15",
-    "reconnect-core": "^1.3.0",
-    "semver": "^6.3.0"
+    "reconnect-core": "^1.3.0"
   },
   "devDependencies": {
-    "babel": "^6.23.0",
-    "babel-plugin-add-module-exports": "^1.0.2",
-    "babel-plugin-syntax-decorators": "^6.13.0",
-    "babel-plugin-transform-decorators-legacy": "^1.3.5",
-    "babel-plugin-transform-runtime": "^6.23.0",
-    "babel-preset-es2015": "^6.24.1",
-    "babel-preset-stage-3": "^6.24.1",
     "bunyan": "^1.8.12",
     "eslint": "^6.6.0",
     "eslint-config-airbnb": "^18.0.1",
@@ -72,21 +51,15 @@
     "eslint-plugin-react-hooks": "^1.7.0",
     "estraverse": "^4.3.0",
     "estraverse-fb": "^1.3.2",
-    "gobble": "^0.12.0",
-    "gobble-babel": "^6.0.0",
-    "gobble-cli": "^0.8.0",
     "install": "^0.13.0",
     "mitm": "^1.7.0",
-    "npm": "^6.13.1",
     "tap-spec": "^5.0.0",
     "tape": "^4.11.0",
     "winston": "^3.2.1",
-    "winston1": "^1.1.2",
-    "winston2x": "^2.4.0"
+    "winston-transport": "4.3.0"
   },
   "optionalPeerDependencies": {
     "winston": "*",
-    "winston1": "*",
-    "winston2x": "*"
+    "winston-transport": "*"
   }
 }
