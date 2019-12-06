@@ -59,6 +59,35 @@ tape('Custom levels without valid indices throw.', function (t) {
   t.end();
 });
 
+tape('Ensure region or host is provided, else throw', function(t) {
+  t.throws(() => {
+    new Logger({ token: '00112233-4455-6677-8899-aabbccddeeff' });
+  });
+
+  t.doesNotThrow(() => {
+    new Logger({ token: '00112233-4455-6677-8899-aabbccddeeff', region: 'eu' });
+  });
+
+  t.doesNotThrow(() => {
+    new Logger({ token: '00112233-4455-6677-8899-aabbccddeeff',
+                 host: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    });
+  });
+
+  t.end();
+});
+
+tape('If region and host is defined, throw', function(t) {
+  t.throws(() => {
+    new Logger({ token: '00112233-4455-6677-8899-aabbccddeeff',
+                 region: 'eu',
+                 host: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    });
+  });
+
+  t.end();
+});
+
 tape('Custom levels with invalid names throw.', function (t) {
   t.throws(levels.normalize.bind(null, { levels: [[]] }), 'object');
   t.throws(levels.normalize.bind(null, { levels: [true] }), 'boolean');
