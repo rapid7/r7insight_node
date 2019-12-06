@@ -1,19 +1,13 @@
 [![Build Status](https://travis-ci.org/rapid7/r7insight_node.svg?branch=master)](https://travis-ci.org/rapid7/r7insight_node)
 
-# r7insight_node: InsightOps Client
+# r7insight_node: Insight Platform Client
 
-Allows you to send logs to your [InsightOps](https://www.rapid7.com/solutions/it-operations/)
+Allows you to send logs to the [Insight Platform](https://www.rapid7.com/products/)
 (or Logentries) account from Node.js.
 
-> It might work with Browserify, too, but you would need to use shims for net
-> and tls. Such shims do exist, based on forge, but I haven’t tested it. There’s
-> a seperate client intended for use in the browser though, called
-> [le_js](https://www.npmjs.com/package/le_js), which uses http and is optimized
-> for browser-specific logging needs.
-
-What is now "r7insight_node" was previously "logentries-client"; users of r7insight_node
-versions before 1.0.2 should read the sections below that detail differences if
-they wish to update.
+There’s a seperate client intended for use in the browser, called
+[le_js](https://www.npmjs.com/package/le_js), which uses http and is optimized
+for browser-specific logging needs.
 
 <!-- MarkdownTOC autolink=true bracket=round -->
 
@@ -32,11 +26,11 @@ they wish to update.
 ## Start
 
 ```javascript
-var Logger = require('r7insight_node');
+var { Logger } = require('r7insight_node');
 
-var logger = new Logger({ token: 'myAccessToken' , region: 'myRegion'});
+var logger = new Logger({ token: '<token>' , region: '<region>'});
 
-logger.warning('The kittens have become alarmingly adorable.')
+logger.warning("I'll put this over here, with the rest of the fire.");
 ```
 
 ## Options
@@ -51,7 +45,7 @@ accessors, though, and invalid values will be ignored.
 ### Required
 
  - **token:** String. Authorization token for the Rapid7 Insight Platform.
- - **region**: Mandatory argument. The region of ingestion endpoint to be used. Examples: 'eu', 'us'
+ - **region**: The region of ingestion endpoint to be used. Examples: 'eu', 'us'
 
 ### Behavior
  - **console:** If truthy, log events also get sent to `console.log`,
@@ -62,7 +56,7 @@ accessors, though, and invalid values will be ignored.
    Defaults to 0.
  - **bufferSize**: The maximum number of log entries that may be queued in the 
    internal ring buffer for sending at a given moment. Default: `16192`.
- - **secure:** If truthy, uses a tls connection. Default: `false`.
+ - **secure:** If truthy, uses a tls connection. Default: `true`.
  - **inactivityTimeout:** The time, in milliseconds, that inactivity should warrant
    closing the connection to the host until needed again. Defaults to 15 seconds.
  - **disableTimeout**: Sets the socket timeout to 0. Should not be used with 
@@ -71,7 +65,7 @@ accessors, though, and invalid values will be ignored.
    Default: `1000`
  - **reconnectMaxDelay**: Maximum wait time in milliseconds while reconnecting.
    Default: `15 * 1000`
- - **reconnectBackoffStrategy**: Backoff strategy to be used while trying to reconnect.
+ - **reconBackoffStrat**: Backoff strategy to be used while trying to reconnect.
    It can be either `fibonacci` or `exponential`. Default: `fibonnacci`   
 
 
@@ -172,9 +166,6 @@ be reopened when needed again. Disconnection can be either a result of socket in
 #### `'drain'`, `'finish'`, `'pipe'`, and `'unpipe'`
 These are events inherited from `Writable`.
 
-#### `'connection drain'`
-DEPRECATED. Use `buffer drain` event instead.
-
 #### `'buffer drain'`
 This event is emitted when the underlying ring buffer is fully consumed and Socket.write callback called.
 This can be useful when it’s time for the application to terminate but you want
@@ -201,7 +192,7 @@ never make it to the Insight Platform.
 
 ```javascript
 logger.ringBuffer.on('buffer shift', () => {
-    // page devops or send an email 
+    // Pager duty or send an email 
 });
 ```
 
@@ -297,8 +288,8 @@ Insight client will place the transport constructor at `winston.transports`,
 even if Winston itself hasn’t yet been required.
 
 ```javascript
-var Logger = require('r7insight_node');
-var winston = require('winston');
+const { Logger } = require('r7insight_node');
+const winston = require('winston');
 
 assert(winston.transports.Insight);
 ```
@@ -308,30 +299,36 @@ When adding a new Insight transport, the options argument passed to Winston’s
 specific. If custom levels are not provided, Winston’s defaults will be used.
 
 ```javascript
-winston.add(winston.transports.Insight, { token: myToken, region: myRegion});
+winston.add(new winston.transports.Insight({ token: '<token>', region: '<region>' }));
 ```
 
 In the hard-to-imagine case where you’re using Winston without including it in
 package.json, you can explicitly provision the transport by first requiring
-Winston and then calling `Logger.provisionWinston()`.
+Winston and then importing and calling `provisionWinston` like this:
+```javascript
+const winston = require('winston');
+
+const { provisionWinston } = require('r7insight_node');
+
+provisionWinston();
+```
 
 ## Using with Bunyan
 
 For Bunyan it’s like so:
 
 ```javascript
-var bunyan = require('bunyan');
+const bunyan = require('bunyan');
+const { buildBunyanStream } = require('r7insight_node');
 
-var Logger = require('r7insight_node');
-
-var loggerDefinition = Logger.bunyanStream({ token: myToken, region: myRegion });
+const loggerDefinition = buildBunyanStream({ token: '<token', region: '<region>' });
 
 // One stream
-var logger1 = bunyan.createLogger(loggerDefinition);
+const logger1 = bunyan.createLogger(loggerDefinition);
 
 // Multiple streams
 var logger2 = bunyan.createLogger({
-	name: 'whatevs',
+	name: 'my leg',
 	streams: [ loggerDefinition, otherLoggerDefinition ]
 });
 ```
