@@ -1,51 +1,43 @@
-import _ from 'lodash';
-import semver from 'semver';
-import net from 'net';
-import tls from 'tls';
-import urlUtil from 'url';
-import { Writable } from 'stream';
-import codependency from 'codependency';
-import reconnectCore from 'reconnect-core';
-import * as defaults from './defaults';
-import * as levelUtil from './levels';
-import text from './text';
-import build from './serialize';
-import {
-  BadOptionsError,
-  InsightError
-} from './error';
-import RingBuffer from './ringbuffer';
-import BunyanStream from './bunyanstream';
+const net = require('net');
+const reconnectCore = require('reconnect-core');
+const tls = require('tls');
+const urlUtil = require('url');
+const _ = require('lodash');
+const { Writable } = require('stream');
+
+const BadOptionsError = require('./optionsError');
+const build = require('./serialize');
+const defaults = require('./defaults');
+const getSafeProp = require('./loggerUtils');
+const InsightError = require('./error');
+const levelUtil = require('./levels');
+const text = require('./text');
+const { RingBuffer } = require('./ringBuffer');
 
 // patterns
 const newline = /\n/g;
 const tokenPattern = /[a-f\d]{8}-([a-f\d]{4}-){3}[a-f\d]{12}/;
 
 // exposed Logger events
-const errorEvent = 'error';
-const logEvent = 'log';
+const bufferDrainEvent = 'buffer drain';
 const connectedEvent = 'connected';
 const disconnectedEvent = 'disconnected';
+const errorEvent = 'error';
+const logEvent = 'log';
 const timeoutEvent = 'timed out';
-const drainWritableEvent = 'drain';
-const finishWritableEvent = 'finish';
-const pipeWritableEvent = 'pipe';
-const unpipeWritableEvent = 'unpipe';
-const bufferDrainEvent = 'buffer drain';
 
 /**
- * Append log string to provided token.
- *
- * @param log
- * @param token
+ * Prepend given log with token for sending to Insight Platform
+ * and format log correctly.
+ * @param {Array} log Log entry
+ * @param {String} token Log token
  */
 const finalizeLogString = (log, token) => `${token} ${log.toString().replace(newline, '\u2028')}\n`;
 
 /**
  * Get console method corresponds to lvl
- *
- * @param lvl
- * @returns {*}
+ * @param {Number} lvl log level
+ * @returns {String}
  */
 const getConsoleMethod = (lvl) => {
   if (lvl > 3) {
@@ -56,62 +48,45 @@ const getConsoleMethod = (lvl) => {
   return 'log';
 };
 
-/**
- * Get a new prop name that does not exist in the log.
- *
- * @param log
- * @param prop
- * @returns safeProp
- */
-const getSafeProp = (log, prop) => {
-  let safeProp = prop;
-  while (safeProp in log) {
-    safeProp = `_${safeProp}`;
-  }
-  return safeProp;
-};
-
-const requirePeer = codependency.register(module);
-
 
 /**
  * Logger class that handles parsing of logs and sending logs to the Insight Platform.
+ * @extends Writable
  */
 class Logger extends Writable {
+  /**
+   * Creates a Logger instance
+   *
+   * @constructor
+   * @param {Map} opts Logger options
+  */
   constructor(opts) {
     super({
       objectMode: true
     });
 
-    // Sanity checks
+    // Sanity options checks
     if (_.isUndefined(opts)) {
       throw new BadOptionsError(opts, text.noOptions());
-    }
-
-    if (!_.isObject(opts)) {
+    } else if (!_.isObject(opts)) {
       throw new BadOptionsError(opts, text.optionsNotObj(typeof opts));
-    }
-
-    if (_.isUndefined(opts.region) && _.isUndefined(opts.host)) {
+    } else if (_.isUndefined(opts.region) && _.isUndefined(opts.host)) {
       throw new BadOptionsError(opts, text.noRegion(opts.region));
-    }
-
-    if (!_.isUndefined(opts.region) && !_.isUndefined(opts.host)) {
+    } else if (!_.isUndefined(opts.region) && !_.isUndefined(opts.host)) {
       throw new BadOptionsError(opts, text.noRegionAndHost(opts.region));
-    }
-
-    if (_.isUndefined(opts.token)) {
+    } else if (_.isUndefined(opts.token)) {
       throw new BadOptionsError(opts, text.noToken());
-    }
-
-    if (!_.isString(opts.token) || !tokenPattern.test(opts.token)) {
+    } else if (!_.isString(opts.token) || !tokenPattern.test(opts.token)) {
       throw new BadOptionsError(opts, text.invalidToken(opts.token));
     }
 
-    // Log method aliases
+    //  Fetch levels from options or default if not provided
     this.levels = levelUtil.normalize(opts);
 
-    for (const lvlName of this.levels) {
+    //  Check each level provided for existing conflict
+    //  and define property on logger so it can be called for logging
+    //  e.g. `logger.randomlevelname('message')`
+    this.levels.forEach((lvlName) => {
       if (lvlName in this) {
         throw new BadOptionsError(opts, text.levelConflict(lvlName));
       }
@@ -123,12 +98,12 @@ class Logger extends Writable {
           this.log.apply(this, [lvlName, ...arguments]);
         }
       });
-    }
+    });
 
-    // boolean options
+    // Boolean options
     this.secure = opts.secure === undefined ? defaults.secure : opts.secure;
     this.debugEnabled = opts.debug === undefined ? defaults.debug : opts.debug;
-    this.json = opts.json;
+    this.json = opts.json || false;
     this.flatten = opts.flatten;
     this.flattenArrays = 'flattenArrays' in opts ? opts.flattenArrays : opts.flatten;
     this.console = opts.console;
@@ -136,7 +111,7 @@ class Logger extends Writable {
     this.withStack = opts.withStack;
     this.timestamp = opts.timestamp || false;
 
-    // string or numeric options
+    // String or Numeric options
     this.bufferSize = opts.bufferSize || defaults.bufferSize;
     this.port = opts.port || (this.secure ? defaults.portSecure : defaults.port);
     this.host = opts.host || `${opts.region}.${opts.baseHost || defaults.baseHost}`;
@@ -147,20 +122,26 @@ class Logger extends Writable {
     this.token = opts.token;
     this.reconnectInitialDelay = opts.reconnectInitialDelay || defaults.reconnectInitialDelay;
     this.reconnectMaxDelay = opts.reconnectMaxDelay || defaults.reconnectMaxDelay;
-    this.reconnectBackoffStrategy = opts.reconnectBackoffStrategy || defaults.reconnectBackoffStrategy;
+    this.reconBackoffStrat = opts.reconBackoffStrat || defaults.reconBackoffStrat;
 
+    //  Configure debug logging
     if (!this.debugEnabled) {
-      // if there is no debug set, empty logger should be used
+      // If there is no debug set, empty logger should be used
       this.debugLogger = {
         log: () => {
         }
       };
+    } else if (opts.debugLogger && opts.debugLogger.log) {
+      this.debugLogger = opts.debugLogger;
     } else {
-      this.debugLogger = (opts.debugLogger && opts.debugLogger.log) ? opts.debugLogger : defaults.debugLogger;
+      this.debugLogger = defaults.debugLogger;
     }
 
-    const isSecure = this.secure;
+    //  Setup buffer for log events
     this.ringBuffer = new RingBuffer(this.bufferSize);
+
+    const isSecure = this.secure;
+    //  Setup connection to the Insight Platform
     this.reconnect = reconnectCore(function initialize() {
       let connection;
       const args = [].slice.call(arguments);
@@ -182,7 +163,7 @@ class Logger extends Writable {
       return connection;
     });
 
-    // RingBuffer emits buffer shift event, meaning we are discarding some data!
+    //  RingBuffer emits buffer shift event, meaning we are discarding some data!
     this.ringBuffer.on('buffer shift', () => {
       this.debugLogger.log('Buffer is full, will be shifting records until buffer is drained.');
     });
@@ -209,9 +190,9 @@ class Logger extends Writable {
   }
 
   /**
-   * Override Writable _write method.
+   * Override {Writable} _write method.
    * Get the connection promise .then write the next log on the ringBuffer
-   * to Insight connection when its available
+   * to the Insight Platform connection when its available
    */
   _write(ch, enc, cb) {
     this.drained = false;
@@ -224,15 +205,14 @@ class Logger extends Writable {
           conn.write(record, () => {
             process.nextTick(() => {
               this.emit(bufferDrainEvent);
-              // this event is DEPRECATED - will be removed in next major release.
-              // new users should use 'buffer drain' event instead.
-              this.emit('connection drain');
             });
           });
         } else {
           conn.write(record);
         }
       } else {
+        //  This from my experience, means we have not written to the
+        //  ringBuffer, which means that reading will return `null`.
         this.debugLogger.log('This should not happen. Read from ringBuffer returned null.');
       }
       cb();
@@ -243,18 +223,22 @@ class Logger extends Writable {
     });
   }
 
+  //  Here we want to overwrite the setDefaultEncoding method but eslint will complain
+  // if we don't use `this` in a class method (should be static in that scenario), so here we
+  // ignore the error
+  /* eslint class-methods-use-this: ["error", { "exceptMethods": ["setDefaultEncoding"] }] */
   setDefaultEncoding() { /* no. */
   }
 
   /**
    * Finalize the log and write() to Logger stream
-   * @param lvl
-   * @param log
+   * @param {String} lvl Indicates logger level, e.g. 'warn', 'debug' etc.
+   * @param {(String|Map|Array)} log log object
    */
   log(lvl, log) {
     let modifiedLevel = lvl;
     let modifiedLog = log;
-    // lvl is optional
+    // Log is optional and not present, so we set the Log = Log Level
     if (modifiedLog === undefined) {
       modifiedLog = modifiedLevel;
       modifiedLevel = null;
@@ -262,6 +246,7 @@ class Logger extends Writable {
 
     let lvlName;
 
+    //  If we have a Level
     if (modifiedLevel || modifiedLevel === 0) {
       [modifiedLevel, lvlName] = this.toLevel(modifiedLevel);
 
@@ -280,7 +265,9 @@ class Logger extends Writable {
     // If log is an array, it is treated as a collection of log events
     if (_.isArray(modifiedLog)) {
       if (modifiedLog.length) {
-        for (const $modifiedLog of modifiedLog) this.log(modifiedLevel, $modifiedLog);
+        modifiedLog.forEach((modLog) => {
+          this.log(modifiedLevel, modLog);
+        });
       } else {
         this.emit(errorEvent, new InsightError(text.noLogMessage()));
       }
@@ -298,6 +285,7 @@ class Logger extends Writable {
         modifiedLog[safeTime] = new Date();
       }
 
+      //  Set level if present
       if (this.withLevel && lvlName) {
         safeLevel = getSafeProp(modifiedLog, 'level');
         modifiedLog[safeLevel] = lvlName;
@@ -363,7 +351,12 @@ class Logger extends Writable {
     this.connection = null;
   }
 
-  // Private methods
+  /**
+   * Close connection via reconnection
+   * @param {String|Number} val logging name ('warn') or number (0)
+   * @return {Array} If val is valid returns `[<logging_num>, <logging_name>]`
+   * else empty array `[]`
+  */
   toLevel(val) {
     let num;
 
@@ -405,7 +398,7 @@ class Logger extends Writable {
       // all options are optional
       initialDelay: this.reconnectInitialDelay,
       maxDelay: this.reconnectMaxDelay,
-      strategy: this.reconnectBackoffStrategy,
+      strategy: this.reconBackoffStrat,
       failAfter: Infinity,
       randomisationFactor: 0,
       immediate: false
@@ -580,12 +573,12 @@ class Logger extends Writable {
     this._reconnectInitialDelay = val;
   }
 
-  get reconnectBackoffStrategy() {
-    return this._reconnectBackoffStrategy;
+  get reconBackoffStrat() {
+    return this._reconBackoffStrat;
   }
 
-  set reconnectBackoffStrategy(val) {
-    this._reconnectBackoffStrategy = val;
+  set reconBackoffStrat(val) {
+    this._reconBackoffStrat = val;
   }
 
   get minLevel() {
@@ -670,170 +663,15 @@ class Logger extends Writable {
   set disableTimeout(val) {
     this._disableTimeout = !!val;
   }
-
-  // Deprecated (to support migrants from r7insight_node)
-  level(name) {
-    console.warn(text.deprecatedLevelMethod());
-    if (~this.levels.indexOf(name)) this.minLevel = name;
-  }
-
-  // static methods
-  static winston() {
-    console.warn(text.deprecatedWinstonMethod());
-  }
-
-  /**
-   * Prepare the winston transport
-   * @param winston
-   */
-  static provisionWinston(winston) {
-    if (winston.transports.Insight) return;
-
-    const { Transport } = winston;
-
-    class InsightTransport extends Transport {
-      constructor(opts) {
-        super(opts);
-        this.json = opts.json;
-        this.name = 'insight';
-
-        const transportOpts = _.clone(opts || {});
-
-        transportOpts.minLevel = transportOpts.minLevel || transportOpts.level || this.tempLevel || 0;
-
-        transportOpts.levels = transportOpts.levels || winston.levels;
-        if (semver.satisfies(winston.version, '>=2.0.0')) {
-          // Winston and Insight levels are reversed
-          // ('error' level is 0 for Winston and 5 for Insight)
-          // If the user provides custom levels we assue they are
-          // using winston standard
-          const { levels } = transportOpts;
-          const values = _.values(levels).reverse();
-          transportOpts.levels = {};
-          _.keys(levels).forEach((k, i) => {
-            transportOpts.levels[k] = values[i];
-          });
-        }
-
-        this.tempLevel = null;
-        this.logger = new Logger(transportOpts);
-        this.logger.on('error', (err) => this.emit(err));
-      }
-
-      log(lvl, msg, meta, cb) {
-        if (this.json) {
-          const message = {
-            message: msg
-          };
-          if (!_.isEmpty(meta)) {
-            if (_.isObject(meta)) {
-              _.defaults(message, meta);
-            } else {
-              message.meta = meta;
-            }
-          }
-
-          this.logger.log(lvl, message);
-        } else {
-          let message = msg;
-          if (!_.isEmpty(meta) || _.isError(meta)) {
-            if (_.isString(message)) {
-              message += ` ${this.logger.serialize(meta)}`;
-            } else if (_.isObject(message)) {
-              message[getSafeProp(message, 'meta')] = meta;
-            }
-          }
-
-          this.logger.log(lvl, message);
-        }
-
-        setImmediate(cb.bind(null, null, true));
-      }
-
-      get tempLevel() {
-        return this._tempLevel;
-      }
-
-      set tempLevel(val) {
-        this._tempLevel = val;
-      }
-
-      get logger() {
-        return this._logger;
-      }
-
-      set logger(obj) {
-        this._logger = obj;
-      }
-
-      get level() {
-        const [, lvlName] = this.logger.toLevel(this.logger.minLevel);
-        return lvlName;
-      }
-
-      set level(val) {
-        if (!this.logger) {
-          this.tempLevel = val;
-        } else {
-          this.logger.minLevel = val;
-        }
-      }
-
-      get levels() {
-        return this.logger.levels.reduce((acc, lvlName, lvlNum) => {
-          const newAcc = acc;
-          newAcc[lvlName] = lvlNum;
-          return newAcc;
-        }, {});
-      }
-    }
-
-    /* eslint no-param-reassign: ["error", { "props": false }] */
-    winston.transports.Insight = InsightTransport;
-  }
-
-  /**
-   * Prepare a BunyanStream.
-   * @param opts
-   * @returns {{level: *, name: string, stream: BunyanStream, type: string}}
-   */
-  static bunyanStream(opts) {
-    const stream = new BunyanStream(opts);
-    const [, level] = stream.logger.toLevel(stream.logger.minLevel);
-    const type = 'raw';
-    const name = 'insight';
-
-    // Defer to Bunyan’s handling of minLevel
-    stream.logger.minLevel = 0;
-
-    return {
-      level, name, stream, type
-    };
-  }
 }
 
-// provision winston
-const winston = requirePeer('winston', { optional: true });
-
-if (winston) Logger.provisionWinston(winston);
-
-// Provision too the winston static versions for testing/development purposes
-const winston1 = requirePeer('winston1', { optional: true });
-const winston2 = requirePeer('winston2x', { optional: true });
-
-if (winston1) Logger.provisionWinston(winston1);
-if (winston2) Logger.provisionWinston(winston2);
-
-export {
-  Logger as default,
+module.exports = {
+  Logger,
   errorEvent,
   logEvent,
   connectedEvent,
   disconnectedEvent,
   timeoutEvent,
-  drainWritableEvent,
-  finishWritableEvent,
-  pipeWritableEvent,
-  unpipeWritableEvent,
-  bufferDrainEvent
+  bufferDrainEvent,
+  RingBuffer,
 };

@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import jsonSS from 'json-stringify-safe';
+const _ = require('lodash');
+const jsonSS = require('json-stringify-safe');
 
 // patterns
 const stackDelim = /\n\s*/g;
@@ -121,4 +121,4 @@ const build = ({
   return flatten ? flat(serialize, flattenArrays) : serialize;
 };
 
-export { build as default };
+module.exports = build;
