@@ -5,6 +5,7 @@
     "comma-dangle": 0,
     "prefer-rest-params": 0,
     "no-console": 0,
-    "no-underscore-dangle": 0
+    "no-underscore-dangle": 0,
+    "no-trailing-spaces": [2, { "ignoreComments": true }]
   }
 }
