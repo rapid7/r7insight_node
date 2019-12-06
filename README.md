@@ -12,6 +12,7 @@ for browser-specific logging needs.
 <!-- MarkdownTOC autolink=true bracket=round -->
 
 - [Start](#start)
+- [Development](#development)
 - [Options](#options)
 - [Log Levels](#log-levels)
 - [Events](#events)
@@ -32,6 +33,17 @@ var logger = new Logger({ token: '<token>' , region: '<region>'});
 
 logger.warning("I'll put this over here, with the rest of the fire.");
 ```
+
+## Development
+
+Workflow is as follows:
+- Fork the repository
+- Clone it locally
+- `npm install` for installing the packages
+- Add unit testing for desired functionality - `npm test` for testing
+- Work on functionality
+- Bump relevant version when finished `npm version [major|minor|patch]`
+- Push and open a pull request
 
 ## Options
 
