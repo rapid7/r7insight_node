@@ -8,7 +8,9 @@ const generateTransport = require('./transport');
  */
 function provisionWinston(winston, Transport) {
   //  If we have already initialized the transport, return
-  if (winston.transports.Insight) return;
+  if (winston.transports.Insight) {
+    return;
+  }
 
   const InsightTransport = generateTransport(winston, Transport);
 

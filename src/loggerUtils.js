@@ -7,9 +7,11 @@
  */
 const getSafeProp = (log, prop) => {
   let safeProp = prop;
+
   while (safeProp in log) {
     safeProp = `_${safeProp}`;
   }
+
   return safeProp;
 };
 

@@ -51,21 +51,21 @@ const debugLogger = (() => {
 
   timestamp.toString = () => `[DEBUG ${(new Date()).toLocaleString()}] Insight r7insight_node: `;
 
-  return { log: console.log.bind(console, '%s', timestamp) };
+  return {log: console.log.bind(console, '%s', timestamp)};
 })();
 
 module.exports = {
-  bufferSize,
-  secure,
   baseHost,
-  port,
-  portSecure,
-  reconnectInitialDelay,
-  reconnectMaxDelay,
-  reconBackoffStrat,
-  inactivityTimeout,
-  levels,
+  bufferSize,
   bunyanLevels,
   debug,
   debugLogger,
+  inactivityTimeout,
+  levels,
+  port,
+  portSecure,
+  reconBackoffStrat,
+  reconnectInitialDelay,
+  reconnectMaxDelay,
+  secure,
 };

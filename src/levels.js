@@ -24,9 +24,9 @@ const normArr = (arr, opts) => {
   }
 
   return arr.map((val) => {
-    if (val && _.isString(val)) return val;
-    if (_.isNumber(val) && Number.isFinite(val)) return val.toString();
-    if (_.isNull(val) || _.isUndefined(val)) return undefined;
+    if (val && _.isString(val)) {return val;}
+    if (_.isNumber(val) && Number.isFinite(val)) {return val.toString();}
+    if (_.isNull(val) || _.isUndefined(val)) {return undefined;}
 
     throw new BadOptionsError(opts, text.levelNotString(val));
   });
@@ -52,13 +52,16 @@ const normObj = (obj, opts) => {
   const duplicates = _(obj).countBy().pick((lvl) => lvl > 1)
     .keys()
     .value();
+
   if (duplicates.length > 0) {
     throw new BadOptionsError(opts, text.duplicateLevelNums(duplicates));
   }
 
   return _.reduce(obj, (arr, i, name) => {
     const reducedArr = arr;
+
     reducedArr[i] = name;
+
     return reducedArr;
   }, []);
 };
@@ -94,6 +97,7 @@ const normalize = (opts) => {
   const duplicates = _(levels).countBy().pickBy((count) => count > 1)
     .keys()
     .value();
+
   if (duplicates.length) {
     throw new BadOptionsError(opts, text.duplicateLevels(duplicates));
   }

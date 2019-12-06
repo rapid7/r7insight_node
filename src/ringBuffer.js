@@ -1,4 +1,4 @@
-const { EventEmitter } = require('events');
+const {EventEmitter} = require('events');
 
 /**
  * RingBuffer class which stores and manages log events
@@ -32,8 +32,10 @@ class RingBuffer extends EventEmitter {
         this.emit('buffer shift');
         this.bufferWasFull = true;
       }
+
       return false;
     }
+
     return true;
   }
 
@@ -43,6 +45,7 @@ class RingBuffer extends EventEmitter {
   */
   read() {
     this.bufferWasFull = false;
+
     return this.records.shift();
   }
 

@@ -24,33 +24,39 @@ const errReplacer = (val, withStack) => {
   // Errors do not serialize nicely with JSON.stringify because none of the
   // properties of interest are ‘own’ properties.
 
-  const err = { name: val.name || 'Error', message: val.message };
+  const err = {
+    message: val.message,
+    name: val.name || 'Error'
+  };
 
   // Though custom errors could have some own properties:
   Object.assign(err, val);
 
   // For the stack, we convert to an array for the sake of readability.
 
-  if (withStack) err.stack = val.stack && val.stack.split(stackDelim);
+  if (withStack) {err.stack = val.stack && val.stack.split(stackDelim);}
 
   return err;
 };
 
 const flat = (serialize, arraysToo) => (obj) => {
   const serializedObj = JSON.parse(serialize(obj));
-  if (!_.isObject(serializedObj)) return serializedObj;
+
+  if (!_.isObject(serializedObj)) {return serializedObj;}
 
   const flatObj = _.reduce(serializedObj, _.bind(function _flat(target, val, key) {
     const keyContext = this.slice();
+
     keyContext.push(key);
 
     const joinedKey = keyContext.join('.');
     const newTarget = target;
+
     if (!_.isObject(val)) {
       newTarget[joinedKey] = val;
     } else if (!arraysToo && _.isArray(val)) {
       newTarget[joinedKey] = val.map((newVal) => {
-        if (!_.isObject(newVal)) return newVal;
+        if (!_.isObject(newVal)) {return newVal;}
 
         return _.reduce(newVal, _.bind(_flat, []), {});
       });
@@ -90,17 +96,19 @@ const build = ({
     }
 
     // Trouble primitives
-    if (_.isNaN(val)) return 'NaN';
-    if (val === Infinity) return 'Infinity';
-    if (val === -Infinity) return '-Infinity';
-    if (1 / val === -Infinity) return '-0';
-    if (typeof val === 'symbol') return val.toString();
+    if (_.isNaN(val)) {return 'NaN';}
+    if (val === Infinity) {return 'Infinity';}
+    if (val === -Infinity) {return '-Infinity';}
+    if (1 / val === -Infinity) {return '-0';}
+    if (typeof val === 'symbol') {return val.toString();}
 
     // Trouble objects
-    if (_.isError(val)) return errReplacer(val, withStack);
-    if (_.isArguments(val)) return _.toArray(val);
-    if (_.isRegExp(val)) return val.toString();
-    if (isNewIterable(val)) return [...val];
+    if (_.isError(val)) {return errReplacer(val, withStack);}
+    if (_.isArguments(val)) {return _.toArray(val);}
+    if (_.isRegExp(val)) {return val.toString();}
+    if (isNewIterable(val)) {
+      return [...val];
+    }
 
     // - Error, regexp, maps and sets would have been `{}`
     // - Arguments would have been `{"0": "arg1", "1": "arg2" }`

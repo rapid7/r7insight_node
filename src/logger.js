@@ -3,7 +3,7 @@ const reconnectCore = require('reconnect-core');
 const tls = require('tls');
 const urlUtil = require('url');
 const _ = require('lodash');
-const { Writable } = require('stream');
+const {Writable} = require('stream');
 
 const BadOptionsError = require('./optionsError');
 const build = require('./serialize');
@@ -12,7 +12,7 @@ const getSafeProp = require('./loggerUtils');
 const InsightError = require('./error');
 const levelUtil = require('./levels');
 const text = require('./text');
-const { RingBuffer } = require('./ringBuffer');
+const {RingBuffer} = require('./ringBuffer');
 
 // patterns
 const newline = /\n/g;
@@ -45,6 +45,7 @@ const getConsoleMethod = (lvl) => {
   } if (lvl === 3) {
     return 'warn';
   }
+
   return 'log';
 };
 
@@ -93,10 +94,10 @@ class Logger extends Writable {
 
       Object.defineProperty(this, lvlName, {
         enumerable: true,
-        writable: false,
         value() {
-          this.log.apply(this, [lvlName, ...arguments]);
-        }
+          this.log(lvlName, ...arguments);
+        },
+        writable: false
       });
     });
 
@@ -142,13 +143,16 @@ class Logger extends Writable {
 
     const isSecure = this.secure;
     //  Setup connection to the Insight Platform
+
     this.reconnect = reconnectCore(function initialize() {
       let connection;
       const args = [].slice.call(arguments);
+
       if (isSecure) {
         connection = tls.connect.apply(tls, args, () => {
           if (!connection.authorized) {
             const errMsg = connection.authorizationError;
+
             this.emit(new InsightError(text.authError(errMsg)));
           } else if (tls && tls.CleartextStream && connection instanceof tls.CleartextStream) {
             this.emit('connect');
@@ -160,6 +164,7 @@ class Logger extends Writable {
       if (!opts.disableTimeout) {
         connection.setTimeout(opts.inactivityTimeout || defaults.inactivityTimeout);
       }
+
       return connection;
     });
 
@@ -198,6 +203,7 @@ class Logger extends Writable {
     this.drained = false;
     this.connection.then((conn) => {
       const record = this.ringBuffer.read();
+
       if (record) {
         // we are checking the buffer state here just after conn.write()
         // to make sure the last event is sent to socket.
@@ -227,7 +233,7 @@ class Logger extends Writable {
   // if we don't use `this` in a class method (should be static in that scenario), so here we
   // ignore the error
   /* eslint class-methods-use-this: ["error", { "exceptMethods": ["setDefaultEncoding"] }] */
-  setDefaultEncoding() { /* no. */
+  setDefaultEncoding() {/* no. */
   }
 
   /**
@@ -239,6 +245,7 @@ class Logger extends Writable {
     let modifiedLevel = lvl;
     let modifiedLog = log;
     // Log is optional and not present, so we set the Log = Log Level
+
     if (modifiedLog === undefined) {
       modifiedLog = modifiedLevel;
       modifiedLevel = null;
@@ -253,6 +260,7 @@ class Logger extends Writable {
       // If lvl is present, it must be recognized
       if (!modifiedLevel && modifiedLevel !== 0) {
         this.emit(errorEvent, new InsightError(text.unknownLevel(modifiedLevel)));
+
         return;
       }
 
@@ -271,6 +279,7 @@ class Logger extends Writable {
       } else {
         this.emit(errorEvent, new InsightError(text.noLogMessage()));
       }
+
       return;
     }
 
@@ -295,6 +304,7 @@ class Logger extends Writable {
 
       if (!modifiedLog) {
         this.emit(errorEvent, new InsightError(text.serializedEmpty()));
+
         return;
       }
 
@@ -302,11 +312,12 @@ class Logger extends Writable {
         console[getConsoleMethod(modifiedLevel)](JSON.parse(modifiedLog));
       }
 
-      if (safeTime) delete modifiedLog[safeTime];
-      if (safeLevel) delete modifiedLog[safeLevel];
+      if (safeTime) {delete modifiedLog[safeTime];}
+      if (safeLevel) {delete modifiedLog[safeLevel];}
     } else {
       if (_.isEmpty(modifiedLog)) {
         this.emit(errorEvent, new InsightError(text.noLogMessage()));
+
         return;
       }
 
@@ -344,6 +355,7 @@ class Logger extends Writable {
     this.debugLogger.log('Closing retry mechanism along with its connection.');
     if (!this.reconnection) {
       this.debugLogger.log('No reconnection instance found. Returning.');
+
       return;
     }
     // this makes sure retry mechanism and connection will be closed.
@@ -396,12 +408,12 @@ class Logger extends Writable {
 
     this.reconnection = this.reconnect({
       // all options are optional
+      failAfter: Infinity,
+      immediate: false,
       initialDelay: this.reconnectInitialDelay,
       maxDelay: this.reconnectMaxDelay,
-      strategy: this.reconBackoffStrat,
-      failAfter: Infinity,
       randomisationFactor: 0,
-      immediate: false
+      strategy: this.reconBackoffStrat
     });
 
     this.connection = new Promise((resolve) => {
@@ -441,6 +453,7 @@ class Logger extends Writable {
       // now try to connect
       this.reconnection.connect(connOpts);
     });
+
     return this.connection;
   }
 
@@ -545,8 +558,9 @@ class Logger extends Writable {
   set host(val) {
     const host = val.replace(/^https?:\/\//, '');
     const url = urlUtil.parse(`http://${host}`);
+
     this._host = url.hostname;
-    if (url.port) this.port = url.port;
+    if (url.port) {this.port = url.port;}
   }
 
   get json() {
@@ -597,7 +611,8 @@ class Logger extends Writable {
 
   set port(val) {
     const port = parseFloat(val);
-    if (Number.isInteger(port) && _.inRange(port, 65536)) this._port = port;
+
+    if (Number.isInteger(port) && _.inRange(port, 65536)) {this._port = port;}
   }
 
   get replacer() {
@@ -667,11 +682,11 @@ class Logger extends Writable {
 
 module.exports = {
   Logger,
-  errorEvent,
-  logEvent,
+  RingBuffer,
+  bufferDrainEvent,
   connectedEvent,
   disconnectedEvent,
+  errorEvent,
+  logEvent,
   timeoutEvent,
-  bufferDrainEvent,
-  RingBuffer,
 };

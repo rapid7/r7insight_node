@@ -1,6 +1,6 @@
 const codependency = require('codependency');
 
-const { Logger } = require('./logger');
+const {Logger} = require('./logger');
 const provisionWinston = require('./winston');
 
 
@@ -12,12 +12,12 @@ const provisionWinston = require('./winston');
 const requirePeer = codependency.register(module);
 
 //  Import winston
-const winston = requirePeer('winston', { optional: true });
-const Transport = requirePeer('winston-transport', { optional: true });
+const winston = requirePeer('winston', {optional: true});
+const Transport = requirePeer('winston-transport', {optional: true});
 
 //  If we have successfully loaded winston (user has it)
 //  we initialize our InsightTransport
-if (winston) provisionWinston(winston, Transport);
+if (winston) {provisionWinston(winston, Transport);}
 
 module.exports = {
   Logger,

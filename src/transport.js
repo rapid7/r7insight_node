@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const stringify = require('json-stringify-safe');
 
-const { Logger } = require('./logger');
+const {Logger} = require('./logger');
 
 /**
  * Generate the InsightTransport Winston Transport.  
@@ -42,8 +42,9 @@ function generateTransport(winston, winstonTransport) {
       // ('error' level is 0 for Winston and 5 for Insight)
       // If the user provides custom levels we assume they are
       // using winston standard
-      const { levels } = transportOpts;
+      const {levels} = transportOpts;
       const values = _.values(levels).reverse();
+
       transportOpts.levels = {};
       _.keys(levels).forEach((k, i) => {
         transportOpts.levels[k] = values[i];
@@ -115,6 +116,7 @@ function generateTransport(winston, winstonTransport) {
 
     get level() {
       const [, lvlName] = this.logger.toLevel(this.logger.minLevel);
+
       return lvlName;
     }
 
@@ -129,7 +131,9 @@ function generateTransport(winston, winstonTransport) {
     get levels() {
       return this.logger.levels.reduce((acc, lvlName, lvlNum) => {
         const newAcc = acc;
+
         newAcc[lvlName] = lvlNum;
+
         return newAcc;
       }, {});
     }

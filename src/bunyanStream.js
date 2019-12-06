@@ -1,8 +1,8 @@
 const _ = require('lodash');
-const { Writable } = require('stream');
+const {Writable} = require('stream');
 
-const { bunyanLevels } = require('./defaults');
-const { Logger } = require('./logger');
+const {bunyanLevels} = require('./defaults');
+const {Logger} = require('./logger');
 
 /**
  * Class representing a Bunyan Stream
@@ -53,6 +53,7 @@ class BunyanStream extends Writable {
 function buildBunyanStream(opts) {
   //  Construct logger options
   const loggerOpts = _.clone(opts || {});
+
   loggerOpts.timestamp = false;
   loggerOpts.levels = opts.levels || bunyanLevels;
 
@@ -61,7 +62,9 @@ function buildBunyanStream(opts) {
 
   //  Setup BunyanStream
   const stream = new BunyanStream(logger);
+
   const [, level] = stream.logger.toLevel(stream.logger.minLevel);
+
   // Defer to Bunyan’s handling of minLevel
   stream.logger.minLevel = 0;
 
