@@ -1,8 +1,7 @@
 const englishList = (arr) => arr.join(', ').replace(/, ([^,]+)$/g, ' and $1');
 
-export default {
+module.exports = {
   // Initialization Error Messages
-
   duplicateLevelNums: (nums) => `The custom levels included duplicate levels: ${englishList(nums)}.`,
 
   duplicateLevels: (names) => `The custom levels included duplicate names: ${englishList(names)}.`,
@@ -33,22 +32,9 @@ export default {
 
   authError: (err) => `TLS authorization error: ${err || 'UNKNOWN'}.`,
 
-  bufferFull: (log) => `Buffer is full, unable to log: "${log.substr(0, 25)} ...".`,
-
-  cannotConnect: () => 'Unable to connect to host. Will attempt again in three minutes.',
-
   noLogMessage: () => 'Log method was called without a message argument.',
 
   serializedEmpty: () => 'Log message argument existed, but serialized to an empty string.',
 
   unknownLevel: (level) => `The log method was called with the unknown level "${level}".`,
-
-  // Deprecation Warnings
-
-  deprecatedLevelMethod: () => 'The `level` method is deprecated. Use the `minLevel` property, '
-  + 'which allows specifying level by either the name or the index.',
-
-  deprecatedWinstonMethod: () => 'The `winston` method is deprecated. Winston was automatically '
-  + 'provisioned with a Insight Platform transport as soon as you `require()`d '
-  + 'this module.'
 };
