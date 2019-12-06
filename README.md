@@ -5,7 +5,7 @@
 Allows you to send logs to the [Insight Platform](https://www.rapid7.com/products/)
 (or Logentries) account from Node.js.
 
-There’s a seperate client intended for use in the browser, called
+There’s a separate client intended for use in the browser, called
 [le_js](https://www.npmjs.com/package/le_js), which uses http and is optimized
 for browser-specific logging needs.
 
@@ -204,7 +204,7 @@ never make it to the Insight Platform.
 
 ```javascript
 logger.ringBuffer.on('buffer shift', () => {
-    // Pager duty or send an email 
+    // PagerDuty or send an email 
 });
 ```
 
