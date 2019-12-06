@@ -4,18 +4,17 @@
 
 const _ = require('lodash');
 const bunyan = require('bunyan');
-const defaults = require('../lib/defaults.js');
-const levels = require('../lib/levels.js');
-const Logger = require('../lib/logger.js');
 const mitm = require('mitm');
 const tape = require('tape');
 const winston = require('winston');
-const winston1 = require('winston1');
-const winston2 = require('winston2x');
-const RingBuffer = require('../lib/ringbuffer.js');
 
-// FAKE TOKEN
+const defaults = require('../src/defaults.js');
+const levels = require('../src/levels.js');
+const { Logger } = require('../src/index.js');
+const { buildBunyanStream } = require('../src/bunyanStream.js');
+const { RingBuffer } = require('../src/ringBuffer.js');
 
+//  Fake token
 const x = '00000000-0000-0000-0000-000000000000';
 
 // CUSTOM LEVEL NAMES
@@ -353,8 +352,8 @@ tape('Flattening options work.', function (t) {
 function mockTest(cb) {
   const mock = mitm();
 
-  mock.on('connection', function (socket) {
-    socket.on('data', function (buffer) {
+  mock.on('connection', function(socket, opts) {
+    socket.on('data', function(buffer) {
       mock.disable();
       cb(buffer.toString());
     });
@@ -516,12 +515,12 @@ tape('Directly logged error objects survive.', function (t) {
 
   logger.on('error', function (err) {
     t.comment(err.stack);
-    t.fail('error logged');
+    t.fail('error logged on error');
   });
 
   mockTest(function (data) {
     const log = JSON.parse(data.substr(37));
-    t.equal(log.message, message, 'error logged');
+    t.equal(log.message, message, 'error logged on connection');
   });
 
   logger.log(error);
@@ -625,18 +624,18 @@ tape('RingBuffer buffers and shifts when it is full', function (t) {
 
 tape('Winston integration is provided.', function (t) {
   t.plan(4);
-  t.timeoutAfter(2000);
+  t.timeoutAfter(1000);
 
   t.true(winston.transports.Insight,
       'provisioned constructor automatically');
 
   t.doesNotThrow(function () {
-    winston.add(winston.transports.Insight, { token: x, region: 'eu' });
+    winston.add(new winston.transports.Insight({ token: x, region: 'eu' }));
   }, 'transport can be added');
 
   winston.remove(winston.transports.Console);
 
-  mockTest(function (data) {
+  mockTest((data) => {
     t.pass('winston log transmits');
     t.equal(data, x + ' warn mysterious radiation\n', 'msg as expected');
   });
@@ -648,18 +647,19 @@ tape("Winston supports json logging.", function (t) {
   t.plan(2);
   t.timeoutAfter(2000);
 
-  const logger = new (winston.Logger)({
+  const logger = winston.createLogger({
     transports: [
-      new (winston.transports.Insight)({ token: x, json: true, region: 'eu' })
+      new winston.transports.Insight({ token: x, region: 'eu' }),
     ]
   });
+
 
   mockTest(function (data) {
     t.pass("winston logs in json format");
     const expect = {
-      message: "msg",
       foo: "bar",
-      level: "warn"
+      level: "warn",
+      message: "msg",
     };
     t.equal(data, x + " " + JSON.stringify(expect) + '\n', 'json as expected');
   });
@@ -667,100 +667,14 @@ tape("Winston supports json logging.", function (t) {
   logger.warn("msg", { foo: "bar" });
 });
 
-tape('Winston@1.1.2 integration is provided.', function (t) {
-  t.plan(4);
-  t.timeoutAfter(2000);
 
-  t.true(winston1.transports.Insight,
-      'provisioned constructor automatically');
-
-  t.doesNotThrow(function () {
-    winston1.add(winston1.transports.Insight, { token: x, region: 'eu' });
-  }, 'transport can be added');
-
-  winston1.remove(winston1.transports.Console);
-
-  mockTest(function (data) {
-    t.pass('winston log transmits');
-    t.equal(data, x + ' warn mysterious radiation\n', 'msg as expected');
-  });
-
-  winston1.warn('mysterious radiation');
-});
-
-tape("Winston@1.1.2 supports json logging.", function (t) {
-  t.plan(2);
-  t.timeoutAfter(2000);
-
-  const logger = new (winston1.Logger)({
-    transports: [
-      new (winston1.transports.Insight)({ token: x, json: true, region: 'eu' })
-    ]
-  });
-
-  mockTest(function (data) {
-    t.pass("winston logs in json format");
-    const expect = {
-      message: "msg",
-      foo: "bar",
-      level: "warn"
-    };
-    t.equal(data, x + " " + JSON.stringify(expect) + '\n', 'json as expected');
-  });
-
-  logger.warn("msg", { foo: "bar" });
-});
-
-tape('Winston@2.1.1 integration is provided.', function (t) {
-  t.plan(4);
-  t.timeoutAfter(2000);
-
-  t.true(winston2.transports.Insight,
-      'provisioned constructor automatically');
-
-  t.doesNotThrow(function () {
-    winston2.add(winston2.transports.Insight, { token: x, region: 'eu' });
-  }, 'transport can be added');
-
-  winston2.remove(winston2.transports.Console);
-
-  mockTest(function (data) {
-    t.pass('winston log transmits');
-    t.equal(data, x + ' warn mysterious radiation\n', 'msg as expected');
-  });
-
-  winston2.warn('mysterious radiation');
-});
-
-tape("Winston@2.1.1 supports json logging.", function (t) {
-  t.plan(2);
-  t.timeoutAfter(2000);
-
-  const logger = new (winston2.Logger)({
-    transports: [
-      new (winston2.transports.Insight)({ token: x, json: true, region: 'eu' })
-    ]
-  });
-
-  mockTest(function (data) {
-    t.pass("winston logs in json format");
-    const expect = {
-      message: "msg",
-      foo: "bar",
-      level: "warn"
-    };
-    t.equal(data, x + " " + JSON.stringify(expect) + '\n', 'json as expected');
-  });
-
-  logger.warn("msg", { foo: "bar" });
-});
 
 // BUNYAN STREAM
 
 tape('Bunyan integration is provided.', function (t) {
   t.plan(9);
 
-  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'eu' });
+  const streamDef = buildBunyanStream({ token: x, minLevel: 3, region: 'eu' });
 
   t.true(streamDef, 'bunyan stream definition created');
 
@@ -797,7 +711,7 @@ tape('Bunyan integration is provided.', function (t) {
 tape('Bunyan integration respects region option.', function (t) {
   t.plan(2);
 
-  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'craggy_island' });
+  const streamDef = buildBunyanStream({ token: x, minLevel: 3, region: 'craggy_island' });
 
   t.equal(streamDef.stream._logger._host, 'craggy_island.data.logs.insight.rapid7.com')
 
