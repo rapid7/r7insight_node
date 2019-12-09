@@ -27,9 +27,9 @@ for browser-specific logging needs.
 ## Start
 
 ```javascript
-var { Logger } = require('r7insight_node');
+const { Logger } = require('r7insight_node');i
 
-var logger = new Logger({ token: '<token>' , region: '<region>'});
+const logger = new Logger({ token: '<token>' , region: '<region>'});
 
 logger.warning("I'll put this over here, with the rest of the fire.");
 ```
@@ -339,7 +339,7 @@ const loggerDefinition = buildBunyanStream({ token: '<token', region: '<region>'
 const logger1 = bunyan.createLogger(loggerDefinition);
 
 // Multiple streams
-var logger2 = bunyan.createLogger({
+const logger2 = bunyan.createLogger({
 	name: 'my leg',
 	streams: [ loggerDefinition, otherLoggerDefinition ]
 });
