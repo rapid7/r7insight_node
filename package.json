@@ -10,6 +10,7 @@
     "winston",
     "bunyan",
     "insightops",
+    "insightidr",
     "rapid7",
     "rapid7.com",
     "insightplatform",
