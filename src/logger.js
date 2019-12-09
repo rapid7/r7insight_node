@@ -104,7 +104,7 @@ class Logger extends Writable {
     // Boolean options
     this.secure = opts.secure === undefined ? defaults.secure : opts.secure;
     this.debugEnabled = opts.debug === undefined ? defaults.debug : opts.debug;
-    this.json = opts.json || false;
+    this.json = !!opts.json;
     this.flatten = opts.flatten;
     this.flattenArrays = 'flattenArrays' in opts ? opts.flattenArrays : opts.flatten;
     this.console = opts.console;
