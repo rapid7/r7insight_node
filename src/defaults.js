@@ -13,7 +13,7 @@ const reconnectInitialDelay = 1000;
 
 const reconnectMaxDelay = 15 * 1000;
 
-const reconBackoffStrat = 'fibonacci';
+const reconnectBackoffStrategy = 'fibonacci';
 
 const inactivityTimeout = 15 * 1000;
 
@@ -64,7 +64,7 @@ module.exports = {
   levels,
   port,
   portSecure,
-  reconBackoffStrat,
+  reconnectBackoffStrategy,
   reconnectInitialDelay,
   reconnectMaxDelay,
   secure,

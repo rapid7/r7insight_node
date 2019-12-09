@@ -77,7 +77,7 @@ accessors, though, and invalid values will be ignored.
    Default: `1000`
  - **reconnectMaxDelay**: Maximum wait time in milliseconds while reconnecting.
    Default: `15 * 1000`
- - **reconBackoffStrat**: Backoff strategy to be used while trying to reconnect.
+ - **reconnectBackoffStrategy**: Backoff strategy to be used while trying to reconnect.
    It can be either `fibonacci` or `exponential`. Default: `fibonnacci`   
 
 

@@ -123,7 +123,7 @@ class Logger extends Writable {
     this.token = opts.token;
     this.reconnectInitialDelay = opts.reconnectInitialDelay || defaults.reconnectInitialDelay;
     this.reconnectMaxDelay = opts.reconnectMaxDelay || defaults.reconnectMaxDelay;
-    this.reconBackoffStrat = opts.reconBackoffStrat || defaults.reconBackoffStrat;
+    this.reconnectBackoffStrategy = opts.reconnectBackoffStrategy || defaults.reconnectBackoffStrategy;
 
     //  Configure debug logging
     if (!this.debugEnabled) {
@@ -413,7 +413,7 @@ class Logger extends Writable {
       initialDelay: this.reconnectInitialDelay,
       maxDelay: this.reconnectMaxDelay,
       randomisationFactor: 0,
-      strategy: this.reconBackoffStrat
+      strategy: this.reconnectBackoffStrategy
     });
 
     this.connection = new Promise((resolve) => {
@@ -587,12 +587,12 @@ class Logger extends Writable {
     this._reconnectInitialDelay = val;
   }
 
-  get reconBackoffStrat() {
-    return this._reconBackoffStrat;
+  get reconnectBackoffStrategy() {
+    return this._reconnectBackoffStrategy;
   }
 
-  set reconBackoffStrat(val) {
-    this._reconBackoffStrat = val;
+  set reconnectBackoffStrategy(val) {
+    this._reconnectBackoffStrategy = val;
   }
 
   get minLevel() {
