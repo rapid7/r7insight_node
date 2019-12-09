@@ -82,7 +82,7 @@ const normalize = (opts) => {
 
   //  If no custom options are provided, return defaults
   if (!custom) {
-    return defaults.levels;
+    return defaults.levels.slice();
   }
 
   //  Normalize supplied custom levels
