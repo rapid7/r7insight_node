@@ -56,8 +56,8 @@ accessors, though, and invalid values will be ignored.
 
 ### Required
 
- - **token:** String. Authorization token for the Rapid7 Insight Platform.
- - **region**: The region of ingestion endpoint to be used. Examples: `eu`, `us`
+ - **token:** String. Log token for the Rapid7 Insight Platform.
+ - **region**: The region of ingestion endpoint to be used. Examples: `eu`, `us` etc.
 
 ### Behavior
  - **console:** If truthy, log events also get sent to `console.log`,
