@@ -290,7 +290,7 @@ Backoff strategy can be changed to `exponential` through constructor if necessar
 A connection to the host does not guarantee that your logs are transmitting
 successfully. If you have a bad token, there is no feedback from the server to
 indicate this. The only way to confirm that your token is working is to check
-the live tail in the Insight Platform. I will investigate this further to see if there’s
+the live tail in InsightOps. I will investigate this further to see if there’s
 some other means with which a token can be tested for validity.
 
 ## Using as a Winston ‘Transport’
