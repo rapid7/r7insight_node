@@ -6,7 +6,7 @@ Allows you to send logs to the [Insight Platform](https://www.rapid7.com/product
 (or Logentries) account from Node.js.
 
 There’s a separate client intended for use in the browser, called
-[le_js](https://www.npmjs.com/package/le_js), which uses http and is optimized
+[r7insight_js](https://github.com/rapid7/r7insight_js), which uses http and is optimized
 for browser-specific logging needs.
 
 <!-- MarkdownTOC autolink=true bracket=round -->
