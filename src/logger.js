@@ -312,8 +312,12 @@ class Logger extends Writable {
         console[getConsoleMethod(modifiedLevel)](JSON.parse(modifiedLog));
       }
 
-      if (safeTime) {delete modifiedLog[safeTime];}
-      if (safeLevel) {delete modifiedLog[safeLevel];}
+      if (safeTime) {
+        delete modifiedLog[safeTime];
+      }
+      if (safeLevel) {
+        delete modifiedLog[safeLevel];
+      }
     } else {
       if (_.isEmpty(modifiedLog)) {
         this.emit(errorEvent, new InsightError(text.noLogMessage()));
@@ -560,7 +564,9 @@ class Logger extends Writable {
     const url = urlUtil.parse(`http://${host}`);
 
     this._host = url.hostname;
-    if (url.port) {this.port = url.port;}
+    if (url.port) {
+      this.port = url.port;
+    }
   }
 
   get json() {
@@ -612,7 +618,9 @@ class Logger extends Writable {
   set port(val) {
     const port = parseFloat(val);
 
-    if (Number.isInteger(port) && _.inRange(port, 65536)) {this._port = port;}
+    if (Number.isInteger(port) && _.inRange(port, 65536)) {
+      this._port = port;
+    }
   }
 
   get replacer() {

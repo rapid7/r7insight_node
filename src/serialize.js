@@ -34,7 +34,9 @@ const errReplacer = (val, withStack) => {
 
   // For the stack, we convert to an array for the sake of readability.
 
-  if (withStack) {err.stack = val.stack && val.stack.split(stackDelim);}
+  if (withStack) {
+    err.stack = val.stack && val.stack.split(stackDelim);
+  }
 
   return err;
 };
@@ -96,17 +98,26 @@ const build = ({
     }
 
     // Trouble primitives
-    if (_.isNaN(val)) {return 'NaN';}
-    if (val === Infinity) {return 'Infinity';}
-    if (val === -Infinity) {return '-Infinity';}
-    if (1 / val === -Infinity) {return '-0';}
-    if (typeof val === 'symbol') {return val.toString();}
+    if (_.isNaN(val)) {
+      return 'NaN';
+    } else if (val === Infinity) {
+      return 'Infinity';
+    } else if (val === -Infinity) {
+      return '-Infinity';
+    } else if (1 / val === -Infinity) {
+      return '-0';
+    } else if (typeof val === 'symbol') {
+      return val.toString();
+    }
 
     // Trouble objects
-    if (_.isError(val)) {return errReplacer(val, withStack);}
-    if (_.isArguments(val)) {return _.toArray(val);}
-    if (_.isRegExp(val)) {return val.toString();}
-    if (isNewIterable(val)) {
+    if (_.isError(val)) {
+      return errReplacer(val, withStack);
+    } else if (_.isArguments(val)) {
+      return _.toArray(val);
+    } else if (_.isRegExp(val)) {
+      return val.toString();
+    } else if (isNewIterable(val)) {
       return [...val];
     }
 
