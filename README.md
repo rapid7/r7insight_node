@@ -68,7 +68,7 @@ accessors, though, and invalid values will be ignored.
    Defaults to 0.
  - **bufferSize**: The maximum number of log entries that may be queued in the 
    internal ring buffer for sending at a given moment. Default: `16192`.
- - **secure:** If truthy, uses a tls connection. Default: `true`.
+ - **secure:** If truthy, uses a TLS connection. Default: `true`.
  - **inactivityTimeout:** The time, in milliseconds, that inactivity should warrant
    closing the connection to the host until needed again. Defaults to 15 seconds.
  - **disableTimeout**: Sets the socket timeout to 0. Should not be used with 
