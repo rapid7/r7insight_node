@@ -1,8 +1,12 @@
 language: "node_js"
 node_js:
+  - "node"      # Latest
+  - "lts/*"     # Latest LTS
   - "12.13.1"
   - "11"
   - "11.10.1"
   - "10"
   - "10.13.0"
+  - "8"
+  - "8.10.0"
 
