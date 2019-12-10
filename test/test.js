@@ -11,7 +11,7 @@ const winston = require('winston');
 const defaults = require('../src/defaults.js');
 const levels = require('../src/levels.js');
 const {Logger, buildBunyanStream} = require('../src/index.js');
-const {RingBuffer} = require('../src/ringBuffer.js');
+const RingBuffer = require('../src/ringBuffer.js');
 
 //  Fake token
 const x = '00000000-0000-0000-0000-000000000000';

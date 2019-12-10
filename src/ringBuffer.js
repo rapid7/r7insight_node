@@ -58,6 +58,4 @@ class RingBuffer extends EventEmitter {
   }
 }
 
-module.exports = {
-  RingBuffer,
-};
+module.exports = RingBuffer;

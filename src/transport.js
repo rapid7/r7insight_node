@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const stringify = require('json-stringify-safe');
 
-const {Logger} = require('./logger');
+const Logger = require('./logger');
 
 /**
  * Generate the InsightTransport Winston Transport.  

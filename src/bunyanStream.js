@@ -2,7 +2,7 @@ const _ = require('lodash');
 const {Writable} = require('stream');
 
 const {bunyanLevels} = require('./defaults');
-const {Logger} = require('./logger');
+const Logger = require('./logger');
 
 /**
  * Class representing a Bunyan Stream

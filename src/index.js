@@ -1,6 +1,6 @@
 const codependency = require('codependency');
 
-const {Logger} = require('./logger');
+const Logger = require('./logger');
 const provisionWinston = require('./winston');
 const buildBunyanStream = require('./bunyanStream');
 

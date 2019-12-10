@@ -12,7 +12,8 @@ const getSafeProp = require('./loggerUtils');
 const InsightError = require('./error');
 const levelUtil = require('./levels');
 const text = require('./text');
-const {RingBuffer} = require('./ringBuffer');
+const RingBuffer = require('./ringBuffer');
+
 
 // patterns
 const newline = /\n/g;
@@ -688,13 +689,4 @@ class Logger extends Writable {
   }
 }
 
-module.exports = {
-  Logger,
-  RingBuffer,
-  bufferDrainEvent,
-  connectedEvent,
-  disconnectedEvent,
-  errorEvent,
-  logEvent,
-  timeoutEvent,
-};
+module.exports = Logger;
