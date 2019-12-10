@@ -2,6 +2,7 @@ const codependency = require('codependency');
 
 const {Logger} = require('./logger');
 const provisionWinston = require('./winston');
+const buildBunyanStream = require('./bunyanStream');
 
 
 //  All the code below optionally configures winston, we need to do this
@@ -21,5 +22,6 @@ if (winston) {provisionWinston(winston, Transport);}
 
 module.exports = {
   Logger,
+  buildBunyanStream,
   provisionWinston,
 };

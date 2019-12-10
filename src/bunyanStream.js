@@ -76,7 +76,4 @@ function buildBunyanStream(opts) {
   };
 }
 
-module.exports = {
-  BunyanStream,
-  buildBunyanStream,
-};
+module.exports = buildBunyanStream;
