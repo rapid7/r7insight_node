@@ -27,7 +27,7 @@ for browser-specific logging needs.
 ## Start
 
 ```javascript
-const { Logger } = require('r7insight_node');i
+const { Logger } = require('r7insight_node');
 
 const logger = new Logger({ token: '<token>' , region: '<region>'});
 
