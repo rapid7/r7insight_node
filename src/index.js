@@ -18,10 +18,12 @@ const Transport = requirePeer('winston-transport', {optional: true});
 
 //  If we have successfully loaded winston (user has it)
 //  we initialize our InsightTransport
-if (winston) {provisionWinston(winston, Transport);}
+if (winston) {
+  provisionWinston(winston, Transport);
+}
 
-module.exports = {
-  Logger,
-  buildBunyanStream,
-  provisionWinston,
-};
+//  Logger is default export
+module.exports = Logger;
+//  Export as `bunyanStream` to not break existing integration
+module.exports.bunyanStream = buildBunyanStream;
+module.exports.provisionWinston = provisionWinston;

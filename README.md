@@ -27,7 +27,7 @@ for browser-specific logging needs.
 ## Start
 
 ```javascript
-const { Logger } = require('r7insight_node');
+const Logger = require('r7insight_node');
 
 const logger = new Logger({ token: '<token>' , region: '<region>'});
 
@@ -300,7 +300,7 @@ Insight client will place the transport constructor at `winston.transports`,
 even if Winston itself hasn’t yet been required.
 
 ```javascript
-const { Logger } = require('r7insight_node');
+const Logger = require('r7insight_node');
 const winston = require('winston');
 
 assert(winston.transports.Insight);
@@ -320,9 +320,9 @@ Winston and then importing and calling `provisionWinston` like this:
 ```javascript
 const winston = require('winston');
 
-const { provisionWinston } = require('r7insight_node');
+const Logger = require('r7insight_node');
 
-provisionWinston();
+Logger.provisionWinston();
 ```
 
 ## Using with Bunyan
@@ -331,9 +331,9 @@ For Bunyan it’s like so:
 
 ```javascript
 const bunyan = require('bunyan');
-const { buildBunyanStream } = require('r7insight_node');
+const Logger = require('r7insight_node');
 
-const loggerDefinition = buildBunyanStream({ token: '<token', region: '<region>' });
+const loggerDefinition = Logger.bunyanStream({ token: '<token', region: '<region>' });
 
 // One stream
 const logger1 = bunyan.createLogger(loggerDefinition);

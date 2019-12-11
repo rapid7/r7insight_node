@@ -10,7 +10,7 @@ const winston = require('winston');
 
 const defaults = require('../src/defaults.js');
 const levels = require('../src/levels.js');
-const {Logger, buildBunyanStream} = require('../src/index.js');
+const Logger = require('../src/index.js');
 const RingBuffer = require('../src/ringBuffer.js');
 
 //  Fake token
@@ -702,7 +702,7 @@ tape("Winston supports json logging.", function (t) {
 tape('Bunyan integration is provided.', function (t) {
   t.plan(9);
 
-  const streamDef = buildBunyanStream({ token: x, minLevel: 3, region: 'eu' });
+  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'eu' });
 
   t.true(streamDef, 'bunyan stream definition created');
 
@@ -739,7 +739,7 @@ tape('Bunyan integration is provided.', function (t) {
 tape('Bunyan integration respects region option.', function (t) {
   t.plan(2);
 
-  const streamDef = buildBunyanStream({ token: x, minLevel: 3, region: 'craggy_island' });
+  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'craggy_island' });
 
   t.equal(streamDef.stream._logger._host, 'craggy_island.data.logs.insight.rapid7.com')
 
