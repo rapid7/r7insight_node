@@ -1,22 +1,23 @@
-export const bufferSize = 16192;
+const bufferSize = 16192;
 
-export const secure = true;
+//  Default to secure stream
+const secure = true;
 
-export const baseHost = 'data.logs.insight.rapid7.com';
+const baseHost = 'data.logs.insight.rapid7.com';
 
-export const port = 80;
+const port = 80;
 
-export const portSecure = 443;
+const portSecure = 443;
 
-export const reconnectInitialDelay = 1000;
+const reconnectInitialDelay = 1000;
 
-export const reconnectMaxDelay = 15 * 1000;
+const reconnectMaxDelay = 15 * 1000;
 
-export const reconnectBackoffStrategy = 'fibonacci';
+const reconnectBackoffStrategy = 'fibonacci';
 
-export const inactivityTimeout = 15 * 1000;
+const inactivityTimeout = 15 * 1000;
 
-export const levels = [
+const levels = [
   'debug',
   'info',
   'notice',
@@ -27,7 +28,7 @@ export const levels = [
   'emerg'
 ];
 
-export const bunyanLevels = [
+const bunyanLevels = [
   'trace',
   'debug',
   'info',
@@ -36,14 +37,35 @@ export const bunyanLevels = [
   'fatal'
 ];
 
-export const debug = false;
+const debug = false;
 
-export const debugLogger = (() => {
+/**
+ * Object which imitates a {Logger} instance  
+ * Can be used like `debugLogger.log('msg')`
+ * @return {Map} Dictionary with a `log` method which console.logs given
+ * output
+*/
+const debugLogger = (() => {
   const timestamp = () => {
   };
 
-  timestamp.toString = () =>
-      `[DEBUG ${(new Date()).toLocaleString()}] Logentries r7insight_node: `;
+  timestamp.toString = () => `[DEBUG ${(new Date()).toLocaleString()}] Insight r7insight_node: `;
 
-  return { log: console.log.bind(console, '%s', timestamp) };
+  return {log: console.log.bind(console, '%s', timestamp)};
 })();
+
+module.exports = {
+  baseHost,
+  bufferSize,
+  bunyanLevels,
+  debug,
+  debugLogger,
+  inactivityTimeout,
+  levels,
+  port,
+  portSecure,
+  reconnectBackoffStrategy,
+  reconnectInitialDelay,
+  reconnectMaxDelay,
+  secure,
+};

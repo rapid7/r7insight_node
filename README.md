@@ -1,23 +1,18 @@
 [![Build Status](https://travis-ci.org/rapid7/r7insight_node.svg?branch=master)](https://travis-ci.org/rapid7/r7insight_node)
 
-# r7insight_node: InsightOps Client
+# r7insight_node: Insight Platform Client
 
-Allows you to send logs to your [InsightOps](https://www.rapid7.com/solutions/it-operations/)
+Allows you to send logs to the [Insight Platform](https://www.rapid7.com/products/)
 (or Logentries) account from Node.js.
 
-> It might work with Browserify, too, but you would need to use shims for net
-> and tls. Such shims do exist, based on forge, but I haven’t tested it. There’s
-> a seperate client intended for use in the browser though, called
-> [le_js](https://www.npmjs.com/package/le_js), which uses http and is optimized
-> for browser-specific logging needs.
-
-What is now "r7insight_node" was previously "logentries-client"; users of r7insight_node
-versions before 1.0.2 should read the sections below that detail differences if
-they wish to update.
+There’s a separate client intended for use in the browser, called
+[r7insight_js](https://github.com/rapid7/r7insight_js), which uses http and is optimized
+for browser-specific logging needs.
 
 <!-- MarkdownTOC autolink=true bracket=round -->
 
 - [Start](#start)
+- [Development](#development)
 - [Options](#options)
 - [Log Levels](#log-levels)
 - [Events](#events)
@@ -32,12 +27,23 @@ they wish to update.
 ## Start
 
 ```javascript
-var Logger = require('r7insight_node');
+const Logger = require('r7insight_node');
 
-var logger = new Logger({ token: 'myAccessToken' , region: 'myRegion'});
+const logger = new Logger({ token: '<token>' , region: '<region>'});
 
-logger.warning('The kittens have become alarmingly adorable.')
+logger.warning("I'll put this over here, with the rest of the fire.");
 ```
+
+## Development
+
+Workflow is as follows:
+- Fork the repository
+- Clone it locally
+- `npm install` for installing the packages
+- Add unit testing for desired functionality - `npm test` for testing
+- Work on functionality
+- Bump relevant version when finished `npm version [major|minor|patch]`
+- Push and open a pull request
 
 ## Options
 
@@ -50,8 +56,8 @@ accessors, though, and invalid values will be ignored.
 
 ### Required
 
- - **token:** String. Authorization token for the Logentries service.
- - **region**: Mandatory argument. The region of ingestion endpoint to be used. Examples: 'eu', 'us'
+ - **token:** String. Log token for the Rapid7 Insight Platform.
+ - **region**: The region of ingestion endpoint to be used. Examples: `eu`, `us` etc.
 
 ### Behavior
  - **console:** If truthy, log events also get sent to `console.log`,
@@ -62,7 +68,7 @@ accessors, though, and invalid values will be ignored.
    Defaults to 0.
  - **bufferSize**: The maximum number of log entries that may be queued in the 
    internal ring buffer for sending at a given moment. Default: `16192`.
- - **secure:** If truthy, uses a tls connection. Default: `false`.
+ - **secure:** If truthy, uses a TLS connection. Default: `true`.
  - **inactivityTimeout:** The time, in milliseconds, that inactivity should warrant
    closing the connection to the host until needed again. Defaults to 15 seconds.
  - **disableTimeout**: Sets the socket timeout to 0. Should not be used with 
@@ -153,6 +159,18 @@ argument and it will be interpretted as the log entry. When used this way, the
 
 ### Logger Events
 
+These events are also exported in the `Logger`, so you can access them using `Logger.errorEvent`, `Logger.bufferDrainEvent` etc. Example:
+
+```javascript
+   logger.notice({ type: 'server', event: 'shutdown' });
+   logger.once(Logger.bufferDrainEvent, () => {
+      logger.closeConnection();
+      logger.on(Logger.disconnectedEvent, () => {
+        process.exit();
+      });
+   });
+```
+
 #### `'error'`
 The client is an EventEmitter, so you should (as always) make sure you have a
 listener on `'error'`. Error events can occur when there’s been a problem with
@@ -171,9 +189,6 @@ be reopened when needed again. Disconnection can be either a result of socket in
 
 #### `'drain'`, `'finish'`, `'pipe'`, and `'unpipe'`
 These are events inherited from `Writable`.
-
-#### `'connection drain'`
-DEPRECATED. Use `buffer drain` event instead.
 
 #### `'buffer drain'`
 This event is emitted when the underlying ring buffer is fully consumed and Socket.write callback called.
@@ -197,11 +212,11 @@ to be sure any pending logs have finished writing.
 Buffer shift event is emitted when the internal buffer is shifted due to reaching `bufferSize`
 of events in the buffer. This event may be listened for security/operations related reasons as
 each time this event is emitted, a log event will be discarded and discarded log event will
-never make it to Logentries.
+never make it to the Insight Platform.
 
 ```javascript
 logger.ringBuffer.on('buffer shift', () => {
-    // page devops or send an email 
+    // PagerDuty or send an email 
 });
 ```
 
@@ -219,7 +234,7 @@ serialize correctly, like Error, RegExp, Set, Map, Infinity, NaN, etc.
 
 If you choose to set `withStack` to true, errors will include their stacktraces
 as an array (so that they are not painful to look at). Be sure to turn on
-"expand JSON" (meaning pretty print) in the options on logentries:
+"expand JSON" (meaning pretty print) in the options in the Insight Platform:
 
 ![stack trace as seen in logentries app][screen1]
 
@@ -269,7 +284,7 @@ entries by default. After that, internal ring buffer will `shift` records
 to keep only last `bufferSize` number of records in memory. A log that indicates the
 buffer was full will be sent to internal logger "once" this happens.
 If `console` is true, these log entries will still display there, but they will
-not make it to LogEntries.
+not make it to the Insight Platform.
 
 You can adjust the maximum size of the buffer with the `bufferSize` option.
 You’ll want to raise it if you’re dealing with very high volume (either a high
@@ -287,51 +302,57 @@ Backoff strategy can be changed to `exponential` through constructor if necessar
 A connection to the host does not guarantee that your logs are transmitting
 successfully. If you have a bad token, there is no feedback from the server to
 indicate this. The only way to confirm that your token is working is to check
-the live tail on Logentries. I will investigate this further to see if there’s
+the live tail in InsightOps. I will investigate this further to see if there’s
 some other means with which a token can be tested for validity.
 
 ## Using as a Winston ‘Transport’
 
 If Winston is included in your package.json dependencies, simply requiring the
-Logentries client will place the transport constructor at `winston.transports`,
+Insight client will place the transport constructor at `winston.transports`,
 even if Winston itself hasn’t yet been required.
 
 ```javascript
-var Logger = require('r7insight_node');
-var winston = require('winston');
+const Logger = require('r7insight_node');
+const winston = require('winston');
 
-assert(winston.transports.Logentries);
+assert(winston.transports.Insight);
 ```
 
-When adding a new Logentries transport, the options argument passed to Winston’s
+When adding a new Insight transport, the options argument passed to Winston’s
 `add` method supports the usual options in addition to those which are Winston-
 specific. If custom levels are not provided, Winston’s defaults will be used.
 
 ```javascript
-winston.add(winston.transports.Logentries, { token: myToken, region: myRegion});
+winston.add(new winston.transports.Insight({ token: '<token>', region: '<region>' }));
 ```
 
 In the hard-to-imagine case where you’re using Winston without including it in
 package.json, you can explicitly provision the transport by first requiring
-Winston and then calling `Logger.provisionWinston()`.
+Winston and then importing and calling `provisionWinston` like this:
+```javascript
+const winston = require('winston');
+
+const Logger = require('r7insight_node');
+
+Logger.provisionWinston();
+```
 
 ## Using with Bunyan
 
 For Bunyan it’s like so:
 
 ```javascript
-var bunyan = require('bunyan');
+const bunyan = require('bunyan');
+const Logger = require('r7insight_node');
 
-var Logger = require('r7insight_node');
-
-var loggerDefinition = Logger.bunyanStream({ token: myToken, region: myRegion });
+const loggerDefinition = Logger.bunyanStream({ token: '<token', region: '<region>' });
 
 // One stream
-var logger1 = bunyan.createLogger(loggerDefinition);
+const logger1 = bunyan.createLogger(loggerDefinition);
 
 // Multiple streams
-var logger2 = bunyan.createLogger({
-	name: 'whatevs',
+const logger2 = bunyan.createLogger({
+	name: 'my leg',
 	streams: [ loggerDefinition, otherLoggerDefinition ]
 });
 ```

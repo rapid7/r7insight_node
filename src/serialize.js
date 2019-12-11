@@ -1,5 +1,5 @@
-import _ from 'lodash';
-import jsonSS from 'json-stringify-safe';
+const _ = require('lodash');
+const jsonSS = require('json-stringify-safe');
 
 // patterns
 const stackDelim = /\n\s*/g;
@@ -7,7 +7,7 @@ const stackDelim = /\n\s*/g;
 // util
 const pass = (key, val) => val;
 
-const isNewIterable = val => {
+const isNewIterable = (val) => {
   const isMap = (Map && val instanceof Map);
   const isSet = (Set && val instanceof Set);
   const isWeakMap = (WeakMap && val instanceof WeakMap);
@@ -24,51 +24,58 @@ const errReplacer = (val, withStack) => {
   // Errors do not serialize nicely with JSON.stringify because none of the
   // properties of interest are ‘own’ properties.
 
-  const err = { name: val.name || 'Error', message: val.message };
+  const err = {
+    message: val.message,
+    name: val.name || 'Error'
+  };
 
   // Though custom errors could have some own properties:
   Object.assign(err, val);
 
   // For the stack, we convert to an array for the sake of readability.
 
-  if (withStack) err.stack = val.stack && val.stack.split(stackDelim);
+  if (withStack) {
+    err.stack = val.stack && val.stack.split(stackDelim);
+  }
 
   return err;
 };
 
-const flat = (serialize, arraysToo) =>
-    (obj) => {
-      const serializedObj = JSON.parse(serialize(obj));
-      if (!_.isObject(serializedObj)) return serializedObj;
+const flat = (serialize, arraysToo) => (obj) => {
+  const serializedObj = JSON.parse(serialize(obj));
 
-      const flatObj = _.reduce(serializedObj, _.bind(function _flat(target, val, key) {
-        const keyContext = this.slice();
-        keyContext.push(key);
+  if (!_.isObject(serializedObj)) {return serializedObj;}
 
-        const joinedKey = keyContext.join('.');
-        const newTarget = target;
-        if (!_.isObject(val)) {
-          newTarget[joinedKey] = val;
-        } else if (!arraysToo && _.isArray(val)) {
-          newTarget[joinedKey] = val.map(newVal => {
-            if (!_.isObject(newVal)) return newVal;
+  const flatObj = _.reduce(serializedObj, _.bind(function _flat(target, val, key) {
+    const keyContext = this.slice();
 
-            return _.reduce(newVal, _.bind(_flat, []), {});
-          });
-        } else {
-          _.reduce(val, _.bind(_flat, keyContext), newTarget);
-        }
+    keyContext.push(key);
 
-        return newTarget;
-      }, []), {});
+    const joinedKey = keyContext.join('.');
+    const newTarget = target;
 
-      return jsonSS(flatObj);
-    };
+    if (!_.isObject(val)) {
+      newTarget[joinedKey] = val;
+    } else if (!arraysToo && _.isArray(val)) {
+      newTarget[joinedKey] = val.map((newVal) => {
+        if (!_.isObject(newVal)) {return newVal;}
+
+        return _.reduce(newVal, _.bind(_flat, []), {});
+      });
+    } else {
+      _.reduce(val, _.bind(_flat, keyContext), newTarget);
+    }
+
+    return newTarget;
+  }, []), {});
+
+  return jsonSS(flatObj);
+};
 
 // build serializer
 const build = ({
-    flatten, flattenArrays, replacer = pass,
-    withStack
+  flatten, flattenArrays, replacer = pass,
+  withStack
 }) => {
   // We augment the default JSON.stringify serialization behavior with
   // handling for a number of values that otherwise return nonsense values or
@@ -80,7 +87,7 @@ const build = ({
   // just want to dump objects in the log hole.
 
   // If the user supplied a custom replacer, it is applied first.
-  const replace = _.flow(replacer, val => {
+  const replace = _.flow(replacer, (val) => {
     // Prototypeless object
     if (_.isObject(val) && !Object.getPrototypeOf(val)) {
       return val;
@@ -91,17 +98,28 @@ const build = ({
     }
 
     // Trouble primitives
-    if (_.isNaN(val)) return 'NaN';
-    if (val === Infinity) return 'Infinity';
-    if (val === -Infinity) return '-Infinity';
-    if (1 / val === -Infinity) return '-0';
-    if (typeof val === 'symbol') return val.toString();
+    if (_.isNaN(val)) {
+      return 'NaN';
+    } else if (val === Infinity) {
+      return 'Infinity';
+    } else if (val === -Infinity) {
+      return '-Infinity';
+    } else if (1 / val === -Infinity) {
+      return '-0';
+    } else if (typeof val === 'symbol') {
+      return val.toString();
+    }
 
     // Trouble objects
-    if (_.isError(val)) return errReplacer(val, withStack);
-    if (_.isArguments(val)) return _.toArray(val);
-    if (_.isRegExp(val)) return val.toString();
-    if (isNewIterable(val)) return [...val];
+    if (_.isError(val)) {
+      return errReplacer(val, withStack);
+    } else if (_.isArguments(val)) {
+      return _.toArray(val);
+    } else if (_.isRegExp(val)) {
+      return val.toString();
+    } else if (isNewIterable(val)) {
+      return [...val];
+    }
 
     // - Error, regexp, maps and sets would have been `{}`
     // - Arguments would have been `{"0": "arg1", "1": "arg2" }`
@@ -122,4 +140,4 @@ const build = ({
   return flatten ? flat(serialize, flattenArrays) : serialize;
 };
 
-export { build as default };
+module.exports = build;
