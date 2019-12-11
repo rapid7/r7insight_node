@@ -20,12 +20,16 @@ const newline = /\n/g;
 const tokenPattern = /[a-f\d]{8}-([a-f\d]{4}-){3}[a-f\d]{12}/;
 
 // exposed Logger events
-const bufferDrainEvent = 'buffer drain';
-const connectedEvent = 'connected';
-const disconnectedEvent = 'disconnected';
 const errorEvent = 'error';
 const logEvent = 'log';
+const connectedEvent = 'connected';
+const disconnectedEvent = 'disconnected';
 const timeoutEvent = 'timed out';
+const drainWritableEvent = 'drain';
+const finishWritableEvent = 'finish';
+const pipeWritableEvent = 'pipe';
+const unpipeWritableEvent = 'unpipe';
+const bufferDrainEvent = 'buffer drain';
 
 /**
  * Prepend given log with token for sending to Insight Platform
@@ -690,3 +694,13 @@ class Logger extends Writable {
 }
 
 module.exports = Logger;
+module.exports.errorEvent = errorEvent;
+module.exports.logEvent = logEvent;
+module.exports.connectedEvent = connectedEvent;
+module.exports.disconnectedEvent = disconnectedEvent;
+module.exports.timeoutEvent = timeoutEvent;
+module.exports.drainWritableEvent = drainWritableEvent;
+module.exports.finishWritableEvent = finishWritableEvent;
+module.exports.pipeWritableEvent = pipeWritableEvent;
+module.exports.unpipeWritableEvent = unpipeWritableEvent;
+module.exports.bufferDrainEvent = bufferDrainEvent;

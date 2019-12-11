@@ -159,6 +159,18 @@ argument and it will be interpretted as the log entry. When used this way, the
 
 ### Logger Events
 
+These events are also exported in the `Logger`, so you can access them using `Logger.errorEvent`, `Logger.bufferDrainEvent` etc. Example:
+
+```javascript
+   logger.notice({ type: 'server', event: 'shutdown' });
+   logger.once(Logger.bufferDrainEvent, () => {
+      logger.closeConnection();
+      logger.on(Logger.disconnectedEvent, () => {
+        process.exit();
+      });
+   });
+```
+
 #### `'error'`
 The client is an EventEmitter, so you should (as always) make sure you have a
 listener on `'error'`. Error events can occur when there’s been a problem with
