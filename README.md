@@ -5,7 +5,7 @@
 Allows you to send logs to the [Insight Platform](https://www.rapid7.com/products/)
 (or Logentries) account from Node.js.
 
-This client is not backwards-compatible with [Le_Node](https://github.com/rapid7/le_node).
+This client is not backwards-compatible with [Le_Node](https://github.com/rapid7/le_node) and will require you to make some modifications to your implementation.
 
 There’s a separate client intended for use in the browser, called
 [r7insight_js](https://github.com/rapid7/r7insight_js), which uses http and is optimized
