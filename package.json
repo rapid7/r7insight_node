@@ -27,6 +27,7 @@
     "url": "https://github.com/rapid7/r7insight_node.git"
   },
   "main": "src/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
