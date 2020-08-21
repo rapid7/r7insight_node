@@ -1,9 +1,11 @@
 *.log
-/node_modules
-/lib
+node_modules/
+lib/
 .gobble
 .gobble-build
 .gobble-watch
 Thumbs.db
-/.idea/
-/r7insight_node.iml
+.idea/
+r7insight_node.iml/
+r7insight_node-*.tgz
+

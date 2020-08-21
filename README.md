@@ -46,6 +46,15 @@ Workflow is as follows:
 - Add unit testing for desired functionality - `npm test` for testing
 - Work on functionality
 - Bump relevant version when finished `npm version [major|minor|patch]`
+- Update typescript definitions if necessary
+  * ```bash
+    # You can simply paste all this into your terminal
+    npm uninstall -g r7insight_node
+    npm pack
+    npm i -g r7insight_node-*.tgz
+    npm install -g dts-gen
+    dts-gen -m r7insight_node -f index.d.ts -o
+    ```
 - Push and open a pull request
 
 ## Options
