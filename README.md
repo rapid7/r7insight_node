@@ -386,7 +386,7 @@ For Ts.ED logger it's like so:
 
 ```typescript
 import {Logger} from "@tsed/logger";
-import "@tsed/logger-insight"
+import "@tsed/logger-insight";
 
 const logger = new Logger("loggerName");
 
