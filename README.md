@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/rapid7/r7insight_node.svg?branch=master)](https://travis-ci.org/rapid7/r7insight_node)
-
 # r7insight_node: Insight Platform Client
 
 Allows you to send logs to the [Insight Platform](https://www.rapid7.com/products/)
