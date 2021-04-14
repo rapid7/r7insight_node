@@ -18,7 +18,7 @@ const Transport = requirePeer('winston-transport', {optional: true});
 
 //  If we have successfully loaded winston (user has it)
 //  we initialize our InsightTransport
-if (winston) {
+if (winston && Transport) {
   provisionWinston(winston, Transport);
 }
 
