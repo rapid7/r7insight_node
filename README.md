@@ -10,21 +10,34 @@ There’s a separate client intended for use in the browser, called
 [r7insight_js](https://github.com/rapid7/r7insight_js), which uses http and is optimized
 for browser-specific logging needs.
 
-<!-- MarkdownTOC autolink=true bracket=round -->
-
-- [Start](#start)
-- [Development](#development)
-- [Options](#options)
-- [Log Levels](#log-levels)
-- [Events](#events)
-- [Log Entries](#log-entries)
-- [Methods](#methods)
-- [Buffer & Connection Issues](#buffer--connection-issues)
-- [Using as a Winston ‘Transport’](#using-as-a-winston-transport)
-- [Using with Bunyan](#using-with-bunyan)
-- [Using with Ts.ED Logger](#using-with-ts-ed-logger)
-
-<!-- /MarkdownTOC -->
+- [r7insight_node: Insight Platform Client](#r7insight_node-insight-platform-client)
+  - [Start](#start)
+  - [Development](#development)
+  - [Options](#options)
+    - [Required](#required)
+    - [Behavior](#behavior)
+    - [Log Processing Options`](#log-processing-options)
+    - [Other](#other)
+  - [Log Levels](#log-levels)
+  - [Events](#events)
+    - [Logger Events](#logger-events)
+      - [`'error'`](#error)
+      - [`'log'`](#log)
+      - [`'connected'` and `'disconnected'` and `'timed out'`](#connected-and-disconnected-and-timed-out)
+      - [`'drain'`, `'finish'`, `'pipe'`, and `'unpipe'`](#drain-finish-pipe-and-unpipe)
+      - [`'buffer drain'`](#buffer-drain)
+    - [RingBuffer Events](#ringbuffer-events)
+      - [`'buffer shift'`](#buffer-shift)
+  - [Log Entries](#log-entries)
+    - [Object Serialization](#object-serialization)
+    - [Optional Augmentation](#optional-augmentation)
+    - [Flattening Log Objects](#flattening-log-objects)
+  - [Methods](#methods)
+  - [Buffering](#buffering)
+  - [Connection Handling](#connection-handling)
+  - [Using as a Winston ‘Transport’](#using-as-a-winston-transport)
+    - [Pre-requisites](#pre-requisites)
+  - [Using with Bunyan](#using-with-bunyan)
 
 ## Start
 
@@ -318,8 +331,15 @@ some other means with which a token can be tested for validity.
 
 ## Using as a Winston ‘Transport’
 
-If Winston is included in your package.json dependencies, simply requiring the
-Insight client will place the transport constructor at `winston.transports`,
+### Pre-requisites
+
+- `winston` and `winston-transport` installed
+  * Check [package.json](./package.json) for currently supported version
+
+If Winston is included in your package.json dependencies, you can just require the Insight Logger
+to initialize it.
+
+The Insight client will place the transport constructor at `winston.transports`,
 even if Winston itself hasn’t yet been required.
 
 ```javascript
@@ -328,6 +348,9 @@ const winston = require('winston');
 
 assert(winston.transports.Insight);
 ```
+
+Winston is an optional dependency in `r7insight_node` and and if included it
+requires `winston-transport` for the `InsightTransport` to extend it.
 
 When adding a new Insight transport, the options argument passed to Winston’s
 `add` method supports the usual options in addition to those which are Winston-
