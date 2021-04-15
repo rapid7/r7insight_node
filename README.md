@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/rapid7/r7insight_node.svg?branch=master)](https://travis-ci.org/rapid7/r7insight_node)
-
 # r7insight_node: Insight Platform Client
 
 Allows you to send logs to the [Insight Platform](https://www.rapid7.com/products/)
@@ -401,3 +399,29 @@ will be ignored; by default Bunyan’s level names will be used.
 The object returned by `bunyanStream` is the Bunyan logging ‘channel’ definition
 in total. If you want to futz with this you can -- you can change its `name` or
 get the `stream` object itself from here.
+
+
+## Using with Ts.ED Logger
+
+For Ts.ED logger it's like so:
+
+```typescript
+import {Logger} from "@tsed/logger";
+import "@tsed/logger-insight";
+
+const logger = new Logger("loggerName");
+
+logger.appenders.set("stdout", {
+  type: "insight",
+  level: ["info"],
+  options: {
+    token: "the token",
+    region: "us"
+    // other options of insight
+  }
+});
+```
+
+As with Winston, the options argument takes the normal constructor options.
+
+See more details on [Ts.ED logger](https://logger.tsed.io/appenders/insight.html)
