@@ -1,6 +1,9 @@
 {
   "env": { "es6": true, "node": true },
   "extends": "rapid7/node",
+  "parserOptions": {
+    "ecmaVersion": 2018
+  },
   "rules": {
     "comma-dangle": 0,
     "prefer-rest-params": 0,
