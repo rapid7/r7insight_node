@@ -76,7 +76,10 @@ function generateTransport(winston, winstonTransport) {
         const splat = meta[Symbol.for('splat')];
 
         if (splat && splat.length) {
-          return splat.reduce((result, current) => Object.assign(result, current), {});
+          return splat.reduce((result, current) => ({
+            ...result,
+            ...current
+          }), {});
         }
 
         return {};
