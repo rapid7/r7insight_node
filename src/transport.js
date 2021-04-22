@@ -1,7 +1,7 @@
 const _ = require('lodash');
 
 const Logger = require('./logger');
-const serializer = require('./serialize');
+const stringify = require('json-stringify-safe');
 
 /**
  * Generate the InsightTransport Winston Transport.  
@@ -98,7 +98,7 @@ function generateTransport(winston, winstonTransport) {
         });
       } else if (Object.keys(info).length > 2) {
         //  If we are not outputting to JSON and have metadata, we use the same format as Winston
-        const message = `${info.level}: ${info.message} ${serializer(this)(metadata)}`;
+        const message = `${info.level}: ${info.message} ${stringify(metadata)}`;
 
         this.logger.log(message);
       } else {
