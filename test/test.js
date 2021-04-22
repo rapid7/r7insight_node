@@ -111,7 +111,7 @@ tape('Custom levels with duplicate names throw.', function (t) {
 tape('Custom levels with conflicting names throw.', function (t) {
 
   function makeLogger(levels) {
-    new Logger({ token, levels: levels, region: 'eu' });
+    new Logger({ token, levels, region: 'eu' });
   }
 
   t.throws(makeLogger.bind(null, ['log']), 'own property');
@@ -671,7 +671,7 @@ tape('Winston supports string format logging', function (t) {
     messageReceived++;
 
     t.pass('winston log transmits');
-    t.equal(data, token + ' warn mysterious radiation\n', 'msg as expected');
+    t.equal(data, `${token} warn mysterious radiation\n`, 'msg as expected');
   });
 
   winston.warn('mysterious radiation');
@@ -854,7 +854,7 @@ tape("Winston supports json logging.", function (t) {
       level: "warn",
       message: "msg",
     };
-    t.equal(data, token + " " + JSON.stringify(expect) + '\n', 'json as expected');
+    t.equal(data, `${token} ${JSON.stringify(expect)}\n`, 'json as expected');
   });
 
   logger.warn("msg", { foo: "bar" });
