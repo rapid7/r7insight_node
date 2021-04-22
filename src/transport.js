@@ -29,7 +29,6 @@ function generateTransport(winston, winstonTransport) {
     */
     constructor(opts) {
       super(opts);
-      this.json = opts.json || false;
 
       const transportOpts = _.clone(opts || {});
 
@@ -65,23 +64,16 @@ function generateTransport(winston, winstonTransport) {
      * @returns {void}
     */
     log(info) {
-      //  If we have specified to log in JSON format, then stringify
+      //  winston should handle parsing and give us a complete message that we should log without any magic
+      //  required on our side.
       //
-      //  Also, if the `info` object which is passed from winston has more
-      //  that 2 default keys (`message` and `level`), then that means that
-      //  the `log` function was called with more two than keys
-      //  (referred to as metadata), so in that scenario we stringify the
-      //  entire message since it is not obvious what format the user wants.
-      //  
-      //  log function, without being given a log (like below) will just log
-      //  the level, which in this case is our message.
-      if (this.json || Object.keys(info).length > 2) {
-        this.logger.log(stringify(info));
-      } else {
-        //  If we do get the default keys of `level` and `message` then we
-        //  can use the default format of `<level> <message>`
-        this.logger.log(info.level, info.message);
-      }
+      //  We do not serialize the string to JSON since our InsightLogger appends extra fields
+      //  e.g. timestamp to it. So we pass in an object and leave serialization up to the logger.
+      //
+      //  Here we don't specify the first argument of level since the winston `info` object
+      //  already contains it.
+      //  If we did then our InsightLogger would append an extra redundant `_level` key.
+      this.logger.log({...info});
     }
 
     /**
