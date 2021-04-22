@@ -797,6 +797,40 @@ tape('Winston supports JSON format logging with multiple metadata', function (t)
   winston.error('test error message with error with metadata', { account_id: 'account_id' }, { hello_there: 'general kenobi' });
 });
 
+tape('Winston supports JSON format logging with timestamps', function (t) {
+  t.plan(4);
+  t.timeoutAfter(1000);
+
+  t.true(winston.transports.Insight,
+      'provisioned constructor automatically');
+
+  winston.remove(winston.transports.Insight);
+  t.doesNotThrow(function () {
+    winston.add(new winston.transports.Insight({ token: token, region: 'eu', json: true, timestamp: true }));
+  }, 'transport can be added');
+
+  winston.remove(winston.transports.Console);
+
+  let messageReceived = 0;
+
+  mockTest((data) => {
+    //  We're only expecting one message, don't accept other messages
+    if (messageReceived == 1) return;
+    messageReceived++;
+
+    t.pass('winston log transmits');
+
+    //  Remove token
+    data = data.substring(token.length + 1);
+
+    //  Turn to object
+    data = JSON.parse(data);
+    t.assert(data.time);
+  });
+
+  winston.error('test error message with error with metadata');
+});
+
 tape("Winston supports json logging.", function (t) {
   t.plan(2);
   t.timeoutAfter(2000);
