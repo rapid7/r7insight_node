@@ -14,7 +14,7 @@ const Logger = require('../src/index.js');
 const RingBuffer = require('../src/ringBuffer.js');
 
 //  Fake token
-const x = '00000000-0000-0000-0000-000000000000';
+const token = '00000000-0000-0000-0000-000000000000';
 
 // CUSTOM LEVEL NAMES
 
@@ -111,7 +111,7 @@ tape('Custom levels with duplicate names throw.', function (t) {
 tape('Custom levels with conflicting names throw.', function (t) {
 
   function makeLogger(levels) {
-    new Logger({ token: x, levels: levels, region: 'eu' });
+    new Logger({ token, levels, region: 'eu' });
   }
 
   t.throws(makeLogger.bind(null, ['log']), 'own property');
@@ -146,7 +146,7 @@ tape('Logger does not forgive or forget.', function (t) {
   /* jshint newcap: false */
 
   t.throws(function () {
-    Logger({ token: x, region: 'eu' });
+    Logger({ token, region: 'eu' });
   }, 'missing new throws');
 
   t.end();
@@ -154,7 +154,7 @@ tape('Logger does not forgive or forget.', function (t) {
 
 tape('Logger allows custom log level methods at construction.', function (t) {
   const logger = new Logger({
-    token: x,
+    token,
     levels: ['tiny', 'small'],
     region: 'eu'
   });
@@ -175,15 +175,15 @@ tape('Logger allows specification of minLevel at construction', function (t) {
 
   const name = defaults.levels[3];
 
-  const logger1 = new Logger({ token: x, minLevel: name, region: 'eu' });
+  const logger1 = new Logger({ token, minLevel: name, region: 'eu' });
 
   t.equal(logger1.minLevel, 3, 'by name.');
 
-  const logger2 = new Logger({ token: x, minLevel: 3, region: 'eu' });
+  const logger2 = new Logger({ token, minLevel: 3, region: 'eu' });
 
   t.equal(logger2.minLevel, 3, 'by index (num)');
 
-  const logger3 = new Logger({ token: x, minLevel: '3', region: 'eu' });
+  const logger3 = new Logger({ token, minLevel: '3', region: 'eu' });
 
   t.equal(logger3.minLevel, 3, 'by index (str)');
 
@@ -198,7 +198,7 @@ tape('Error objects are serialized nicely.', function (t) {
   const err = new Error(msg);
   const log = { errs: [err] };
 
-  const logger1 = new Logger({ token: x, region: 'eu' });
+  const logger1 = new Logger({ token, region: 'eu' });
 
   t.equal(JSON.parse(logger1.serialize(err)).message, msg,
       'error object is serialized.');
@@ -209,7 +209,7 @@ tape('Error objects are serialized nicely.', function (t) {
   t.equal(JSON.parse(logger1.serialize(err)).stack, undefined,
       'by default, stack is not included.');
 
-  const logger2 = new Logger({ token: x, withStack: true, region: 'eu' });
+  const logger2 = new Logger({ token, withStack: true, region: 'eu' });
 
   t.true(JSON.parse(logger2.serialize(err)).stack,
       'withStack option causes its inclusion.');
@@ -223,7 +223,7 @@ tape('Arguments and regex patterns are serialized.', function (t) {
   })(1, 2, 3);
   const regObj = /abc/;
 
-  const logger = new Logger({ token: x, region: 'eu' });
+  const logger = new Logger({ token, region: 'eu' });
 
   t.true(logger.serialize(argObj) === '[1,2,3]', 'arguments become arrays.');
 
@@ -243,7 +243,7 @@ tape('Custom value transformer is respected.', function (t) {
     err: new Error('not kittens :(')
   };
 
-  const logger = new Logger({ token: x, replacer: alwaysKittens, region: 'eu' });
+  const logger = new Logger({ token, replacer: alwaysKittens, region: 'eu' });
 
   const res = JSON.parse(logger.serialize(log));
 
@@ -264,7 +264,7 @@ tape('Circular references don’t make the sad times.', function (t) {
   const consciousness = {};
   consciousness.iAm = consciousness;
 
-  const logger = new Logger({ token: x, region: 'eu' });
+  const logger = new Logger({ token, region: 'eu' });
 
   const res = JSON.parse(logger.serialize(consciousness));
 
@@ -284,7 +284,7 @@ tape('Serialize objects that inherit from non-Object objects fine', function (t)
 
   newObj.prop = 1;
 
-  const logger = new Logger({ token: x, region: 'eu' });
+  const logger = new Logger({ token, region: 'eu' });
 
   const res = JSON.parse(logger.serialize(newObj));
 
@@ -300,7 +300,7 @@ tape('Object.create(null) objects don’t destroy everything.', function (t) {
 
   nullObj.prop = 1;
 
-  const logger = new Logger({ token: x, region: 'eu' });
+  const logger = new Logger({ token, region: 'eu' });
 
   const res = JSON.parse(logger.serialize(nullObj));
 
@@ -331,14 +331,14 @@ tape('Flattening options work.', function (t) {
   }
 
   const logger1 = new Logger({
-    token: x,
+    token,
     flatten: true,
     flattenArrays: false,
     region: 'eu'
   });
 
   const logger2 = new Logger({
-    token: x,
+    token,
     flatten: true,
     replacer: replacer,
     region: 'eu'
@@ -394,7 +394,7 @@ tape('Data is sent over standard connection.', function (t) {
 
   const lvl = defaults.levels[3];
   const msg = 'test';
-  const tkn = x;
+  const tkn = token;
 
   const mock = mitm();
 
@@ -426,7 +426,7 @@ tape('Data is sent over secure connection.', function (t) {
 
   const lvl = defaults.levels[3];
   const msg = 'test';
-  const tkn = x;
+  const tkn = token;
 
   const mock = mitm();
 
@@ -459,7 +459,7 @@ tape('Log methods can send multiple entries.', function (t) {
   t.timeoutAfter(4000);
 
   const lvl = defaults.levels[3];
-  const tkn = x;
+  const tkn = token;
   const logger = new Logger({ token: tkn, region: 'eu' });
   let count = 0;
 
@@ -484,9 +484,9 @@ tape('Non-JSON logs may carry timestamp.', function (t) {
   });
 
   const lvl = defaults.levels[3];
-  const tkn = x;
+  const tkn = token;
   const pattern = new RegExp(
-      '^' + x +
+      '^' + token +
       ' \\d{4}-\\d\\d-\\d\\dT\\d\\d:\\d\\d:\\d\\d.\\d{3}Z \\w+ test\\n$'
   );
 
@@ -524,7 +524,7 @@ tape('JSON logs match expected pattern.', function (t) {
   });
 
   const lvl = defaults.levels[3];
-  const tkn = x;
+  const tkn = token;
   const timestampPattern = /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d.\d{3}Z$/;
 
   const logger = new Logger({ token: tkn, timestamp: true, region: 'eu' });
@@ -539,7 +539,7 @@ tape('Directly logged error objects survive.', function (t) {
 
   const message = 'warp breach imminent';
   const error = new Error(message);
-  const logger = new Logger({ token: x, region: 'eu' });
+  const logger = new Logger({ token, region: 'eu' });
 
   logger.on('error', function (err) {
     t.comment(err.stack);
@@ -558,7 +558,7 @@ tape('Invalid calls to log methods emit error.', function (t) {
   t.plan(2);
   t.timeoutAfter(500);
 
-  const logger1 = new Logger({ token: x, region: 'eu' });
+  const logger1 = new Logger({ token, region: 'eu' });
 
   logger1.on('error', function () {
     t.pass('no arguments');
@@ -566,7 +566,7 @@ tape('Invalid calls to log methods emit error.', function (t) {
 
   logger1.log(3);
 
-  const logger2 = new Logger({ token: x, region: 'eu' });
+  const logger2 = new Logger({ token, region: 'eu' });
 
   logger2.on('error', function () {
     t.pass('empty array');
@@ -579,7 +579,7 @@ tape('Socket gets re-opened as needed.', function (t) {
   t.plan(1);
   t.timeoutAfter(3000);
 
-  const logger = new Logger({ token: x, region: 'eu' });
+  const logger = new Logger({ token, region: 'eu' });
 
   mockTest(function (data) {
 
@@ -604,8 +604,8 @@ tape('Socket is not closed after inactivity timeout when buffer is not empty.', 
   t.plan(3);
   t.timeoutAfter(1000);
   const lvl = defaults.levels[3];
-  const tkn = x;
-  const logger = new Logger({ token: x, inactivityTimeout: 300, region: 'eu' });
+  const tkn = token;
+  const logger = new Logger({ token, inactivityTimeout: 300, region: 'eu' });
 
   const mock = mitm();
 
@@ -650,7 +650,7 @@ tape('RingBuffer buffers and shifts when it is full', function (t) {
 
 // WINSTON TRANSPORT
 
-tape('Winston integration is provided.', function (t) {
+tape('Winston supports string format logging', function (t) {
   t.plan(4);
   t.timeoutAfter(1000);
 
@@ -658,17 +658,177 @@ tape('Winston integration is provided.', function (t) {
       'provisioned constructor automatically');
 
   t.doesNotThrow(function () {
-    winston.add(new winston.transports.Insight({ token: x, region: 'eu' }));
+    winston.add(new winston.transports.Insight({ token, region: 'eu' }));
   }, 'transport can be added');
 
   winston.remove(winston.transports.Console);
 
+  let messageReceived = 0;
+
   mockTest((data) => {
+    //  We're only expecting one message
+    if (messageReceived == 1) return;
+    messageReceived++;
+
     t.pass('winston log transmits');
-    t.equal(data, x + ' warn mysterious radiation\n', 'msg as expected');
+    t.equal(data, `${token} warn mysterious radiation\n`, 'msg as expected');
   });
 
   winston.warn('mysterious radiation');
+});
+
+tape('Winston supports string format logging with metadata', function (t) {
+  t.plan(4);
+  t.timeoutAfter(1000);
+
+  t.true(winston.transports.Insight,
+      'provisioned constructor automatically');
+
+  winston.remove(winston.transports.Insight);
+  t.doesNotThrow(function () {
+    winston.add(new winston.transports.Insight({ token, region: 'eu' }));
+  }, 'transport can be added');
+
+  winston.remove(winston.transports.Console);
+
+  let messageReceived = 0;
+
+  mockTest((data) => {
+    //  We're only expecting one message
+    if (messageReceived == 1) return;
+    messageReceived++;
+
+    t.pass('winston log transmits');
+    const expectedMessage = `${token} error: test error message {"account_id":"account_id"}\n`;
+
+    t.equal(data, expectedMessage, 'msg as expected');
+  });
+
+  winston.error('test error message', { account_id: 'account_id' });
+});
+
+tape('Winston supports string format logging with multiple metadata', function (t) {
+  t.plan(4);
+  t.timeoutAfter(1000);
+
+  t.true(winston.transports.Insight,
+      'provisioned constructor automatically');
+
+  winston.remove(winston.transports.Insight);
+  t.doesNotThrow(function () {
+    winston.add(new winston.transports.Insight({ token, region: 'eu' }));
+  }, 'transport can be added');
+
+  winston.remove(winston.transports.Console);
+
+  let messageReceived = 0;
+
+  mockTest((data) => {
+    //  We're only expecting one message
+    if (messageReceived == 1) return;
+    messageReceived++;
+
+    t.pass('winston log transmits');
+    const expectedMessage = `${token} error: test error message with error with metadata {"account_id":"account_id","hello_there":"general kenobi"}\n`;
+
+    t.equal(data, expectedMessage, 'msg as expected');
+  });
+
+  winston.error('test error message with error with metadata', { account_id: 'account_id' }, { hello_there: 'general kenobi' });
+});
+
+tape('Winston supports JSON format logging with metadata', function (t) {
+  t.plan(4);
+  t.timeoutAfter(1000);
+
+  t.true(winston.transports.Insight,
+      'provisioned constructor automatically');
+
+  winston.remove(winston.transports.Insight);
+  t.doesNotThrow(function () {
+    winston.add(new winston.transports.Insight({ token, region: 'eu', json: true }));
+  }, 'transport can be added');
+
+  winston.remove(winston.transports.Console);
+
+  let messageReceived = 0;
+
+  mockTest((data) => {
+    //  We're only expecting one message, don't accept other messages
+    if (messageReceived == 1) return;
+    messageReceived++;
+
+    t.pass('winston log transmits');
+    const expectedMessage = `${token} {"account_id":"account_id","level":"error","message":"test error message"}\n`;
+
+    t.equal(data, expectedMessage, 'msg as expected');
+  });
+
+  winston.error('test error message', { account_id: 'account_id' });
+});
+
+tape('Winston supports JSON format logging with multiple metadata', function (t) {
+  t.plan(4);
+  t.timeoutAfter(1000);
+
+  t.true(winston.transports.Insight,
+      'provisioned constructor automatically');
+
+  winston.remove(winston.transports.Insight);
+  t.doesNotThrow(function () {
+    winston.add(new winston.transports.Insight({ token, region: 'eu', json: true }));
+  }, 'transport can be added');
+
+  winston.remove(winston.transports.Console);
+
+  let messageReceived = 0;
+
+  mockTest((data) => {
+    //  We're only expecting one message, don't accept other messages
+    if (messageReceived == 1) return;
+    messageReceived++;
+
+    t.pass('winston log transmits');
+    const expectedMessage = `${token} {"account_id":"account_id","level":"error","message":"test error message with error with metadata","hello_there":"general kenobi"}\n`;
+
+    t.equal(data, expectedMessage, 'msg as expected');
+  });
+
+  winston.error('test error message with error with metadata', { account_id: 'account_id' }, { hello_there: 'general kenobi' });
+});
+
+tape('Winston supports JSON format logging with timestamps', function (t) {
+  t.plan(4);
+  t.timeoutAfter(1000);
+
+  t.true(winston.transports.Insight,
+      'provisioned constructor automatically');
+
+  winston.remove(winston.transports.Insight);
+  t.doesNotThrow(function () {
+    winston.add(new winston.transports.Insight({ token, region: 'eu', json: true, timestamp: true }));
+  }, 'transport can be added');
+
+  winston.remove(winston.transports.Console);
+
+  let messageReceived = 0;
+
+  mockTest((data) => {
+    //  We're only expecting one message, don't accept other messages
+    if (messageReceived == 1) return;
+    messageReceived++;
+
+    t.pass('winston log transmits');
+
+    //  Remove token
+    data = data.substring(token.length + 1);
+
+    //  Turn to object
+    data = JSON.parse(data);
+    t.assert(data.time);
+  });
+
+  winston.error('test error message with error with metadata');
 });
 
 tape("Winston supports json logging.", function (t) {
@@ -677,19 +837,24 @@ tape("Winston supports json logging.", function (t) {
 
   const logger = winston.createLogger({
     transports: [
-      new winston.transports.Insight({ token: x, region: 'eu' }),
+      new winston.transports.Insight({ token, region: 'eu', json: true }),
     ]
   });
 
+  let messageReceived = 0;
 
   mockTest(function (data) {
+    //  We're only expecting one message
+    if (messageReceived == 1) return;
+    messageReceived++;
+
     t.pass("winston logs in json format");
     const expect = {
       foo: "bar",
       level: "warn",
       message: "msg",
     };
-    t.equal(data, x + " " + JSON.stringify(expect) + '\n', 'json as expected');
+    t.equal(data, `${token} ${JSON.stringify(expect)}\n`, 'json as expected');
   });
 
   logger.warn("msg", { foo: "bar" });
@@ -702,7 +867,7 @@ tape("Winston supports json logging.", function (t) {
 tape('Bunyan integration is provided.', function (t) {
   t.plan(9);
 
-  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'eu' });
+  const streamDef = Logger.bunyanStream({ token, minLevel: 3, region: 'eu' });
 
   t.true(streamDef, 'bunyan stream definition created');
 
@@ -739,7 +904,7 @@ tape('Bunyan integration is provided.', function (t) {
 tape('Bunyan integration respects region option.', function (t) {
   t.plan(2);
 
-  const streamDef = Logger.bunyanStream({ token: x, minLevel: 3, region: 'craggy_island' });
+  const streamDef = Logger.bunyanStream({ token, minLevel: 3, region: 'craggy_island' });
 
   t.equal(streamDef.stream._logger._host, 'craggy_island.data.logs.insight.rapid7.com')
 
