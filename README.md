@@ -118,6 +118,8 @@ accessors, though, and invalid values will be ignored.
    or add the same as a property (if objects). Default: `false`.
  - **withLevel**: Will prepend (string) or add property (object) indicating the
    log level. Default: `true`.
+ - **withHostname**: Will prepend(string) or add property (object) indicating the 
+   hostname from which the log was sent. Default: `false`.
  - **withStack**: If an object is or contains an `Error` object, setting this to
    `true` will cause the stack trace to be included. Default: `false.`
 

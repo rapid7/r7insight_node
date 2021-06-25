@@ -191,6 +191,21 @@ tape('Logger allows specification of minLevel at construction', function (t) {
 
 });
 
+tape('Logger allows specification of withHostname at construction', function (t) {
+
+  const logger1 = new Logger({ token, withHostname: true, region: 'eu' });
+
+  t.equal(logger1.withHostname, true, 'withHostname');
+
+  const logger2 = new Logger({ token, region: 'eu' });
+
+  t.equal(logger2.withHostname, false, 'withHostname');
+
+  t.end();
+
+});
+
+
 // CUSTOM JSON SERIALIZATION
 
 tape('Error objects are serialized nicely.', function (t) {
@@ -494,6 +509,44 @@ tape('Non-JSON logs may carry timestamp.', function (t) {
 
   logger[lvl]('test');
 });
+
+tape('Non-JSON logs may carry Hostname.', function (t) {
+  t.plan(1);
+  t.timeoutAfter(2000);
+
+  mockTest(function (data) {
+    t.true(pattern.test(data), 'matched');
+
+  });
+  const os = require('os');
+  const lvl = defaults.levels[3];
+  const tkn = token;
+  const pattern = new RegExp('^' + token +' ' + os.hostname() + ' \\w+ test\\n$'
+  );
+
+  const logger = new Logger({ token: tkn, withHostname: true, region: 'eu' });
+
+  logger[lvl]('test');
+});
+
+
+tape('JSON logs may carry Hostname.', function (t) {
+  t.plan(1);
+  t.timeoutAfter(2000);
+
+  mockTest(function (data) {
+    const log = JSON.parse(data.substr(37));
+    t.true(log.host, 'has property');
+  });
+  const os = require('os');
+  const lvl = defaults.levels[3];
+  const tkn = token;
+
+  const logger = new Logger({ token: tkn, withHostname: true, region: 'eu' });
+
+  logger[lvl]({msg: "Testing!"});
+});
+
 
 tape('JSON logs match expected pattern.', function (t) {
   t.timeoutAfter(2000);
@@ -873,7 +926,7 @@ tape('Bunyan integration is provided.', function (t) {
 
   t.equal(streamDef.level, defaults.bunyanLevels[3],
     'minLevel translated correctly');
-  
+
   t.equal(streamDef.stream._logger._host, 'eu.data.logs.insight.rapid7.com')
 
   const logger = bunyan.createLogger({
