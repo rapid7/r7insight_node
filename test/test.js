@@ -521,8 +521,7 @@ tape('Non-JSON logs may carry Hostname.', function (t) {
   const os = require('os');
   const lvl = defaults.levels[3];
   const tkn = token;
-  const pattern = new RegExp('^' + token +' ' + os.hostname() + ' \\w+ test\\n$'
-  );
+  const pattern = new RegExp(`^${token} ${os.hostname()} \\w+ test\\n$`);
 
   const logger = new Logger({ token: tkn, withHostname: true, region: 'eu' });
 
@@ -536,7 +535,7 @@ tape('JSON logs may carry Hostname.', function (t) {
 
   mockTest(function (data) {
     const log = JSON.parse(data.substr(37));
-    t.true(log.host, 'has property');
+    t.equals(os.hostname(), log.hostname);
   });
   const os = require('os');
   const lvl = defaults.levels[3];

@@ -295,7 +295,7 @@ class Logger extends Writable {
     if (_.isObject(modifiedLog)) {
       let safeTime;
       let safeLevel;
-      let safeHost;
+      let safeHostname;
 
       if (this.timestamp) {
         safeTime = getSafeProp(modifiedLog, 'time');
@@ -310,8 +310,8 @@ class Logger extends Writable {
 
       //  Set level if present
       if (this.withHostname) {
-        safeHost = getSafeProp(modifiedLog, 'host');
-        modifiedLog[safeHost] = os.hostname();
+        safeHostname = getSafeProp(modifiedLog, 'hostname');
+        modifiedLog[safeHostname] = os.hostname();
       }
 
       modifiedLog = this._serialize(modifiedLog);
