@@ -37,7 +37,9 @@ for browser-specific logging needs.
   - [Connection Handling](#connection-handling)
   - [Using as a Winston ‘Transport’](#using-as-a-winston-transport)
     - [Pre-requisites](#pre-requisites)
+    - [Code Example](#code-example)
   - [Using with Bunyan](#using-with-bunyan)
+  - [Using with Ts.ED Logger](#using-with-tsed-logger)
 
 ## Start
 
@@ -338,8 +340,41 @@ some other means with which a token can be tested for validity.
 - `winston` and `winston-transport` installed
   * Check [package.json](./package.json) for currently supported version
 
-If Winston is included in your package.json dependencies, you can just require the Insight Logger
-to initialize it.
+### Code Example
+
+```javascript
+const winston = require('winston');
+
+// If Winston is included in your package.json dependencies,
+// you can just require the Insight Logger
+// to initialize it.
+require('r7insight_node');
+
+const token = '00112233-4455-6677-8899-aabbccddeeff';
+const transports = [];
+
+transports.push(
+	new winston.transports.Console({
+		format: winston.format.simple(),
+		level: 'debug',
+	})
+);
+
+transports.push(
+	new winston.transports.Insight({
+		token,
+		region: 'eu',
+		level: 'debug',
+	})
+);
+
+const logger = winston.createLogger({
+	transports,
+});
+
+logger.info('hello there');
+```
+
 
 The Insight client will place the transport constructor at `winston.transports`,
 even if Winston itself hasn’t yet been required.
@@ -351,10 +386,10 @@ const winston = require('winston');
 assert(winston.transports.Insight);
 ```
 
-Winston is an optional dependency in `r7insight_node` and and if included it
+- Winston is an optional dependency in `r7insight_node` and and if included it
 requires `winston-transport` for the `InsightTransport` to extend it.
 
-When adding a new Insight transport, the options argument passed to Winston’s
+- When adding a new Insight transport, the options argument passed to Winston’s
 `add` method supports the usual options in addition to those which are Winston-
 specific. If custom levels are not provided, Winston’s defaults will be used.
 
@@ -362,7 +397,7 @@ specific. If custom levels are not provided, Winston’s defaults will be used.
 winston.add(new winston.transports.Insight({ token: '<token>', region: '<region>' }));
 ```
 
-In the hard-to-imagine case where you’re using Winston without including it in
+- In the hard-to-imagine case where you’re using Winston without including it in
 package.json, you can explicitly provision the transport by first requiring
 Winston and then importing and calling `provisionWinston` like this:
 ```javascript
