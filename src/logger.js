@@ -1,4 +1,5 @@
 const net = require('net');
+const os = require('os');
 const reconnectCore = require('reconnect-core');
 const tls = require('tls');
 const urlUtil = require('url');
@@ -114,6 +115,7 @@ class Logger extends Writable {
     this.flattenArrays = 'flattenArrays' in opts ? opts.flattenArrays : opts.flatten;
     this.console = opts.console;
     this.withLevel = 'withLevel' in opts ? opts.withLevel : true;
+    this.withHostname = opts.withHostname;
     this.withStack = opts.withStack;
     this.timestamp = opts.timestamp || false;
 
@@ -293,6 +295,7 @@ class Logger extends Writable {
     if (_.isObject(modifiedLog)) {
       let safeTime;
       let safeLevel;
+      let safeHostname;
 
       if (this.timestamp) {
         safeTime = getSafeProp(modifiedLog, 'time');
@@ -303,6 +306,12 @@ class Logger extends Writable {
       if (this.withLevel && lvlName) {
         safeLevel = getSafeProp(modifiedLog, 'level');
         modifiedLog[safeLevel] = lvlName;
+      }
+
+      //  Set level if present
+      if (this.withHostname) {
+        safeHostname = getSafeProp(modifiedLog, 'hostname');
+        modifiedLog[safeHostname] = os.hostname();
       }
 
       modifiedLog = this._serialize(modifiedLog);
@@ -334,6 +343,10 @@ class Logger extends Writable {
 
       if (this.withLevel && lvlName) {
         modifiedLog.unshift(lvlName);
+      }
+
+      if (this.withHostname) {
+        modifiedLog.unshift(os.hostname());
       }
 
       if (this.timestamp) {
@@ -665,6 +678,14 @@ class Logger extends Writable {
 
   set withLevel(val) {
     this._withLevel = !!val;
+  }
+
+  get withHostname() {
+    return this._withHostname;
+  }
+
+  set withHostname(val) {
+    this._withHostname = !!val;
   }
 
   get withStack() {
