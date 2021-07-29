@@ -649,7 +649,79 @@ tape('Socket gets re-opened as needed.', function (t) {
       logger.log(3, 'qwerty');
     }, 500);
   }, 500);
+});
 
+
+tape('Logger minLevel option is supported and works', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = new Logger({
+    token,
+    region: 'eu',
+    minLevel: 'info',
+  });
+
+  mockTest(_ => {
+    t.fail('Data should not be sent with lower logger level.');
+  });
+
+  logger.debug('asd');
+  logger.log('debug', 'asd');
+  logger['debug']('asd');
+
+  t.pass('Test finished');
+});
+
+tape('Winston JSON logger minLevel option is supported and works', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = winston.createLogger({
+    transports: [
+      new winston.transports.Insight({
+        token,
+        region: 'eu',
+        minLevel: 'info',
+        json: true,
+      }),
+    ]
+  });
+
+  mockTest(_ => {
+    t.fail('Data should not be sent with lower logger level.');
+  });
+
+  logger.debug('asd');
+  logger.log('debug', 'asd');
+  logger['debug']('asd');
+
+  t.pass('Test finished');
+});
+
+tape('Winston String logger minLevel option is supported and works', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = winston.createLogger({
+    transports: [
+      new winston.transports.Insight({
+        token,
+        region: 'eu',
+        minLevel: 'info',
+      }),
+    ]
+  });
+
+  mockTest(_ => {
+    t.fail('Data should not be sent with lower logger level.');
+  });
+
+  logger.debug('asd');
+  logger.log('debug', 'asd');
+  logger['debug']('asd');
+
+  t.pass('Test finished');
 });
 
 tape('Socket is not closed after inactivity timeout when buffer is not empty.', function (t) {
