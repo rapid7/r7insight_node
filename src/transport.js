@@ -52,6 +52,20 @@ function generateTransport(winston, winstonTransport) {
 
       this.tempLevel = null;
 
+      if (this.json) {
+        //  If we are using JSON, winston will provide us a complete object/log message with
+        //  the logger level included, so we take the level from the log.
+        transportOpts.takeLevelFromLog = true;
+        //  Therefore we don't want our Logger to also include level since it's duplicate data.
+        //  Without this we'll get a message like this, where `_level` is a property we add in
+        //  InsightLogger if withLevel is truthy:
+        //  {"level":"error","message":"test error message","_level":"error"}
+        transportOpts.withLevel = false;
+      }
+
+      //  store for updating InsightLogger if Winston changes logger levels
+      this.minLevel = transportOpts.minLevel;
+
       //  Configure logger
       this.logger = new Logger(transportOpts);
       this.logger.on('error', (err) => this.emit(err));
@@ -85,8 +99,6 @@ function generateTransport(winston, winstonTransport) {
         return {};
       };
 
-      const metadata = returnMetadata(info);
-
       if (this.json) {
         //  If we are to output JSON, we create the full object containing level, message and metadata.
         //
@@ -97,11 +109,11 @@ function generateTransport(winston, winstonTransport) {
         //  If we did provide it InsightLogger would append an extra redundant `_level` key.
         this.logger.log({
           ...info,
-          ...metadata,
+          ...returnMetadata(info),
         });
       } else if (Object.keys(info).length > 2) {
         //  If we are not outputting to JSON and have metadata, we use the same format as Winston
-        const message = `${info.level}: ${info.message} ${stringify(metadata)}`;
+        const message = `${info.level}: ${info.message} ${stringify(returnMetadata(info))}`;
 
         this.logger.log(message);
       } else {
@@ -182,6 +194,13 @@ function generateTransport(winston, winstonTransport) {
       //
       //  Keys are also always provided in the same order.
       this.logger.levels = Object.keys(val).reverse();
+      //  Winston sets logger levels which are different from the ones we use.
+      //  It does this after the construction of the InsightTransport object.
+      //
+      //  Therefore we need to update the minLevel in order to make sure it's correct for dropping log messages
+      //  which are less important than the current logging level.
+      //  If we don't do this we will be using different levels against a stale/incorrect minLevel.
+      this.logger.minLevel = this.minLevel;
     }
   }
 
