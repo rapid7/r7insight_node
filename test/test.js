@@ -694,6 +694,40 @@ tape('Logger takeLevelFromLog option logs correct level log messages', function 
   logger.log({level: 'emerg', msg: 'ello'});
 });
 
+tape('Logger takeLevelFromLog option logs correct level log messages with custom levels', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const levels = {
+    foo: 0,
+    bar: 1,
+    baz: 2,
+    foobar: 3
+  };
+
+  const logger = new Logger({
+    token,
+    levels,
+    region: 'eu',
+    minLevel: 'foobar',
+    takeLevelFromLog: true,
+  });
+
+  mockTest(_ => {
+    t.pass(`Message logged.`);
+  });
+
+  logger.foo('asd');
+  logger.bar('asd');
+  logger.baz('asd');
+
+  logger.log({level: 'foo', msg: 'asd'});
+  logger.log({level: 'bar', msg: 'asd'});
+  logger.log({level: 'baz', msg: 'asd'});
+  //  only this call should be logged
+  logger.log({level: 'foobar', msg: 'asd'});
+});
+
 tape('Logger minLevel option is supported and works', function (t) {
   t.plan(1);
   t.timeoutAfter(1000);
