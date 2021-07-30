@@ -188,7 +188,7 @@ logger.log(2, 'my msg');
 ```
 
 It’s also possible to forgo log levels altogether. Just call `log` with a single
-argument and it will be interpretted as the log entry. When used this way, the
+argument and it will be interpreted as the log entry. When used this way, the
 `minLevel` setting is ignored.
 
 ## Events
