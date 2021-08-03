@@ -649,7 +649,156 @@ tape('Socket gets re-opened as needed.', function (t) {
       logger.log(3, 'qwerty');
     }, 500);
   }, 500);
+});
 
+tape('Logger takeLevelFromLog option skips low log level messages', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = new Logger({
+    token,
+    region: 'eu',
+    minLevel: 'emerg',
+    takeLevelFromLog: true,
+  });
+
+  mockTest(_ => {
+    t.fail(`Log level is too low and message shouldn't be logged.`);
+  });
+
+  logger.log({level: 'warning', msg: 'ello'});
+  logger.log({level: 'alert', msg: 'ello'});
+  logger.log({level: 'crit', msg: 'ello'});
+  logger.log({level: 'err', msg: 'ello'});
+
+  t.pass('Test finished');
+});
+
+tape('Logger takeLevelFromLog option logs correct level log messages', function (t) {
+  t.plan(3);
+  t.timeoutAfter(1000);
+
+  const logger = new Logger({
+    token,
+    region: 'eu',
+    minLevel: 'crit',
+    takeLevelFromLog: true,
+  });
+
+  mockTest(_ => {
+    t.pass(`Message logged.`);
+  });
+
+  logger.log({level: 'crit', msg: 'ello'});
+  logger.log({level: 'alert', msg: 'ello'});
+  logger.log({level: 'emerg', msg: 'ello'});
+});
+
+tape('Logger takeLevelFromLog option logs correct level log messages with custom levels', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const levels = {
+    foo: 0,
+    bar: 1,
+    baz: 2,
+    foobar: 3
+  };
+
+  const logger = new Logger({
+    token,
+    levels,
+    region: 'eu',
+    minLevel: 'foobar',
+    takeLevelFromLog: true,
+  });
+
+  mockTest(_ => {
+    t.pass(`Message logged.`);
+  });
+
+  logger.foo('asd');
+  logger.bar('asd');
+  logger.baz('asd');
+
+  logger.log({level: 'foo', msg: 'asd'});
+  logger.log({level: 'bar', msg: 'asd'});
+  logger.log({level: 'baz', msg: 'asd'});
+  //  only this call should be logged
+  logger.log({level: 'foobar', msg: 'asd'});
+});
+
+tape('Logger minLevel option is supported and works', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = new Logger({
+    token,
+    region: 'eu',
+    minLevel: 'info',
+  });
+
+  mockTest(_ => {
+    t.fail('Data should not be sent with lower logger level.');
+  });
+
+  logger.debug('asd');
+  logger.log('debug', 'asd');
+  logger['debug']('asd');
+
+  t.pass('Test finished');
+});
+
+tape('Winston JSON logger minLevel option is supported and works', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = winston.createLogger({
+    transports: [
+      new winston.transports.Insight({
+        token,
+        region: 'eu',
+        minLevel: 'info',
+        json: true,
+      }),
+    ]
+  });
+
+  mockTest(_ => {
+    t.fail('Data should not be sent with lower logger level.');
+  });
+
+  logger.debug('asd');
+  logger.log('debug', 'asd');
+  logger['debug']('asd');
+  logger.log({level: 'debug', message: 'msg'});
+
+  t.pass('Test finished');
+});
+
+tape('Winston String logger minLevel option is supported and works', function (t) {
+  t.plan(1);
+  t.timeoutAfter(1000);
+
+  const logger = winston.createLogger({
+    transports: [
+      new winston.transports.Insight({
+        token,
+        region: 'eu',
+        minLevel: 'info',
+      }),
+    ]
+  });
+
+  mockTest(_ => {
+    t.fail('Data should not be sent with lower logger level.');
+  });
+
+  logger.debug('asd');
+  logger.log('debug', 'asd');
+  logger['debug']('asd');
+
+  t.pass('Test finished');
 });
 
 tape('Socket is not closed after inactivity timeout when buffer is not empty.', function (t) {

@@ -111,6 +111,7 @@ class Logger extends Writable {
     this.secure = opts.secure === undefined ? defaults.secure : opts.secure;
     this.debugEnabled = opts.debug === undefined ? defaults.debug : opts.debug;
     this.json = !!opts.json;
+    this.takeLevelFromLog = !!opts.takeLevelFromLog;
     this.flatten = opts.flatten;
     this.flattenArrays = 'flattenArrays' in opts ? opts.flattenArrays : opts.flatten;
     this.console = opts.console;
@@ -251,11 +252,16 @@ class Logger extends Writable {
   log(lvl, log) {
     let modifiedLevel = lvl;
     let modifiedLog = log;
-    // Log is optional and not present, so we set the Log = Log Level
 
+    // If function is called without second argument, with just a message:
+    //  logger.log('oops');
+    //
+    //  Then we set the log level to null if we shouldn't take the level from the log,
+    //  since it doesn't exist.
+    //  We then place the message in the right variable.
     if (modifiedLog === undefined) {
       modifiedLog = modifiedLevel;
-      modifiedLevel = null;
+      modifiedLevel = this.takeLevelFromLog ? modifiedLog.level : null;
     }
 
     let lvlName;

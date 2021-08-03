@@ -92,6 +92,14 @@ accessors, though, and invalid values will be ignored.
    methods. More details on this below.
  - **minLevel**: The minimum level to actually record logs at. String or Number.
    Defaults to 0.
+ - **takeLevelFromLog**: If truthy, will take log message level from message. Default: `false`.  
+   E.g. if `true`:
+   ```javascript
+   // Rather than call different functions based on level:
+   logger.warn({message: 'hello'});
+   // You can call the same function with different levels within object:
+   logger.log({level: 'warn', message: 'hello'});
+   ```
  - **bufferSize**: The maximum number of log entries that may be queued in the 
    internal ring buffer for sending at a given moment. Default: `16192`.
  - **secure:** If truthy, uses a TLS connection. Default: `true`.
@@ -180,7 +188,7 @@ logger.log(2, 'my msg');
 ```
 
 It’s also possible to forgo log levels altogether. Just call `log` with a single
-argument and it will be interpretted as the log entry. When used this way, the
+argument and it will be interpreted as the log entry. When used this way, the
 `minLevel` setting is ignored.
 
 ## Events
