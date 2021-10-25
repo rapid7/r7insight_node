@@ -115,7 +115,7 @@ accessors, though, and invalid values will be ignored.
    It can be either `fibonacci` or `exponential`. Default: `fibonnacci`   
 
 
-### Log Processing Options`
+### Log Processing Options
  - **flatten**: Convert objects into a single-level object where the values of
    interior objects become dot-notation properties of the root object. Defaults
    to `false`. More details on this below.
