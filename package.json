@@ -44,7 +44,7 @@
   },
   "peerDependencies": {
     "winston": "^3.2.1",
-    "winston-transport": "^3.2.1"
+    "winston-transport": "^4.3.0"
   },
   "peerDependenciesMeta": {
     "winston": {
