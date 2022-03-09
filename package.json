@@ -38,10 +38,21 @@
     "node": "^8.10.0 || ^10.13.0 || >=11.10.1"
   },
   "dependencies": {
-    "codependency": "^2.1.0",
     "json-stringify-safe": "^5.0.1",
     "lodash": "^4.17.15",
     "reconnect-core": "^1.3.0"
+  },
+  "peerDependencies": {
+    "winston": "*",
+    "winston-transport": "*"
+  },
+  "peerDependenciesMeta": {
+    "winston": {
+      "optional": true
+    },
+    "winston-transport": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "bunyan": "^1.8.12",
@@ -59,9 +70,5 @@
     "tape": "^4.11.0",
     "winston": "^3.2.1",
     "winston-transport": "4.3.0"
-  },
-  "optionalPeerDependencies": {
-    "winston": "*",
-    "winston-transport": "*"
   }
 }
