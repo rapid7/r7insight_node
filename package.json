@@ -43,8 +43,8 @@
     "reconnect-core": "^1.3.0"
   },
   "peerDependencies": {
-    "winston": "^3.x",
-    "winston-transport": "^4.3.0"
+    "winston": "3.x",
+    "winston-transport": "4.x"
   },
   "peerDependenciesMeta": {
     "winston": {
