@@ -1,20 +1,17 @@
-const codependency = require('codependency');
-
 const Logger = require('./logger');
 const provisionWinston = require('./winston');
 const buildBunyanStream = require('./bunyanStream');
 
+let winston = null,
+    Transport = null;
 
-//  All the code below optionally configures winston, we need to do this
-//  here since we can only use codependency within the `package.json` `"main"`
-//  script, which gives us the correct `module`. Otherwise it errors out
-
-//  Use codependency for dynamically loading winston
-const requirePeer = codependency.register(module);
-
-//  Import winston
-const winston = requirePeer('winston', {optional: true});
-const Transport = requirePeer('winston-transport', {optional: true});
+try {
+  //  All the code below optionally loads winston if it's installed
+  winston = require('winston');
+  Transport = require('winston-transport');
+} catch (ignored) {
+  // If winston isn't installed, proceed as usual
+}
 
 //  If we have successfully loaded winston (user has it)
 //  we initialize our InsightTransport
