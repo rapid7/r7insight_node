@@ -1,6 +1,6 @@
 {
   "name": "r7insight_node",
-  "version": "3.2.2",
+  "version": "3.2.3",
   "description": "Rapid7 Insight Platform client for node; use with or without Winston or Bunyan.",
   "keywords": [
     "logentries",
