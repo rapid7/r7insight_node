@@ -1,0 +1,15 @@
+---
+info:
+  title: R7insight Node
+  description: node logging support for InsightOps
+  x-cortex-git:
+    github:
+      alias: r7org
+      repository: rapid7/r7insight_node
+  x-cortex-tag: r7insight-node
+  x-cortex-type: service
+  x-cortex-domain-parents:
+  - tag: insightidr
+openapi: 3.0.1
+servers:
+- url: "/"
